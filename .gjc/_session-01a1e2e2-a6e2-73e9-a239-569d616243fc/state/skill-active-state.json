@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "active": true,
+  "skill": "deep-interview",
+  "phase": "handoff",
+  "updated_at": "2026-11-16T05:56:18.223Z",
+  "session_id": "01a1e2e2-a6e2-73e9-a239-569d616243fc",
+  "active_skills": [
+    {
+      "skill": "deep-interview",
+      "phase": "handoff",
+      "active": true,
+      "activated_at": "2026-11-16T05:56:18.223Z",
+      "updated_at": "2026-11-16T05:56:18.223Z",
+      "session_id": "01a1e2e2-a6e2-73e9-a239-569d616243fc",
+      "hud": {
+        "version": 1,
+        "chips": [
+          {
+            "label": "phase",
+            "value": "handoff",
+            "priority": 10
+          },
+          {
+            "label": "ambiguity",
+            "value": "19%/60%",
+            "priority": 20
+          },
+          {
+            "label": "round",
+            "value": "7",
+            "priority": 30
+          },
+          {
+            "label": "spec",
+            "value": "persisted",
+            "priority": 60
+          }
+        ],
+        "updated_at": "2026-11-16T05:56:18.222Z"
+      },
+      "source_state_revision": 16,
+      "state_revision": 15
+    }
+  ],
+  "active_subskills": [],
+  "source_state_revision": 24,
+  "state_revision": 24
+}
