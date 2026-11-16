@@ -6,7 +6,7 @@
 
 ## 명령어
 - 테스트: node --test test/
-- 실행: index.html 을 브라우저로 연다 (서버 없음). 필요하면 python3 -m http.server 8000
+- 실행: python3 -m http.server 8000 후 http://localhost:8000 을 연다. file:// 더블클릭은 ES module CORS로 막히므로 쓰지 않는다.
 - 커밋: goal 하나에 하나. 메시지는 goal-N: / replan-N: / design-vN: / fix-N:
 
 ## 코드 규칙
@@ -31,3 +31,10 @@
 - "끝났다"고 말할 때는 사람이 무엇을 열어 무엇을 봐야 하는지 수용 기준 번호로 말한다.
 - fixture 데이터로 찍은 스크린샷은 증거가 아니다.
 - 한 goal에서 같은 시도를 6번 넘게 반복하지 않는다. 막히면 멈추고 어디서 막혔는지 보고한다. 그 다음은 ralplan의 일이다.
+
+## 작업 방식 (사람 개입 최소화)
+- 사람에게 묻는 것은 두 가지뿐이다: (1) ralplan 최종 플랜 승인, (2) goal이 끝났을 때 브라우저에서 확인할 수용 기준 번호와 여는 방법.
+- "(에이전트 제안)" 값은 사람이 승인한 것으로 보고 진행한다. 그 밖의 선택도 묻지 말고 가장 단순한 쪽을 고른 뒤 기획서에 적는다.
+- ralplan은 planner → architect → critic을 멈추지 않고 끝까지 돌린다. critic 지적은 기획서를 먼저 고쳐 반영한 뒤 다시 검토한다.
+- 사람이 브라우저 확인에서 OK하면 verify, checkpoint, 커밋(goal-N), 기획서 버전 갱신과 커밋(design-vN)까지 에이전트가 직접 한다.
+- 막히면(nudge 소진, 같은 확인 항목 2번 연속 X, 범위 밖 기능) 사람에게 묻지 않고 ralplan으로 돌아가 replan하고 replan-N 커밋을 남긴다.
