@@ -11,6 +11,8 @@
 //      - GAME_DESIGN.md 6장 팔레트 색(바닥 음영, 벌 몸통/줄무늬/날개)이 실제로 그려졌다
 //      - 벌 몸통 색이 시작 칸(가로 7, 세로 4)에는 있고 (0,0) 칸에는 없다
 //      - 이미지가 단색이 아니다
+//      - 꽃 색(#FF6B9A)·말벌 색(#D9482B)이 그려졌고, src/levels.js 에서 읽은 F 5곳·W 1곳 타일에 각각 있으며 (0,0) 타일에는 없다
+//      - 꿀 칸 막대: 각 꽃 타일의 막대 행(타일 y+25~y+30)에서 #FFD23F 픽셀이 정확히 8*꿀양개(꽃 스프라이트 아래 2행은 비어 있어 꽃심이 섞이지 않는다)이고 막대 바탕 #1A1A1A 가 있다. (0,0) 타일 막대 행에는 둘 다 없다
 //   4) --enable-logging=stderr 로 받은 Chrome 로그에서 CONSOLE 줄(console.error 등 콘솔 메시지)이 0개인지 본다.
 //      console.error 한 줄이 CONSOLE 1줄로 잡히는 것은 확인했다. 스크립트 로드 실패(404)가 CONSOLE 줄로 잡히는지는 확인하지 못했다.
 //      대신 모듈이 로드되지 않으면 벌이 안 그려지므로 아래 렌더 확인(3)이 실패한다.
@@ -18,6 +20,7 @@
 // 무엇을 못 하나 (정직하게)
 //   - 키 입력을 보내지 않는다. 이 스크립트는 "처음 화면이 올바르게 그려지고 콘솔 에러가 없다"만 확인한다.
 //     이동 로직은 e2e/key-sequence.js 와 node --test test/ 가, 실제 키보드로 움직이는 느낌은 사람의 브라우저 확인(9장)이 맡는다.
+//   - 결과 화면(성공/실패)은 보지 않는다. 처음 화면 한 장뿐이다.
 //   - 애니메이션을 보지 않는다. virtual-time 으로 한 번 찍은 정지 화면 한 장이다.
 //   - Chrome 로그가 비어 있으면(로깅이 꺼졌으면) '콘솔 0'을 통과시키지 않고 실패시킨다.
 //   - Chrome 한 종류(macOS)만 본다. Firefox/Safari, 다른 OS, 다른 화면 배율은 확인하지 않는다.
@@ -29,7 +32,7 @@ import { inflateSync } from "node:zlib";
 import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const execFileP = promisify(execFile);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -47,6 +50,13 @@ const BEE_STRIPE = "#2B2118";
 const BEE_WING = "#F4F8FF";
 const TILE = 32;
 const START = { x: 7, y: 4 }; // 5장
+const FLOWER_PETAL = "#FF6B9A";
+const WASP_BODY = "#D9482B";
+const BAR_BASE = "#1A1A1A";
+const { LEVEL_1, LEVEL_1_HONEY } = await import(pathToFileURL(path.join(root, "src/levels.js")).href);
+const cells = (ch) => LEVEL_1.flatMap((row, y) => [...row].flatMap((c, x) => (c === ch ? [{ x, y }] : [])));
+const FLOWER_CELLS = cells("F").map((c, i) => ({ ...c, amount: LEVEL_1_HONEY[i] }));
+const WASP_CELL = cells("W")[0];
 
 const checks = [];
 const check = (name, ok, observed) => checks.push({ name, result: ok ? "PASS" : "FAIL", observed });
@@ -185,6 +195,24 @@ try {
   const atStart = countIn(START.x, START.y, BEE_BODY);
   const atOrigin = countIn(0, 0, BEE_BODY);
   check(`bee body color is in the start tile (${START.x},${START.y}) and not in tile (0,0)`, atStart > 0 && atOrigin === 0, `start tile ${atStart}px, tile (0,0) ${atOrigin}px`);
+
+  for (const [name, hex] of [["flower petal", FLOWER_PETAL], ["wasp body", WASP_BODY]]) check(`6장 palette color drawn: ${name} ${hex}`, has(hex), has(hex) ? "present" : "missing");
+  const petals = FLOWER_CELLS.map((f) => countIn(f.x, f.y, FLOWER_PETAL));
+  check(`flower petal color is in each of the ${FLOWER_CELLS.length} F tiles from LEVEL_1`, FLOWER_CELLS.length === 5 && petals.every((n) => n > 0), `petal px per flower tile ${JSON.stringify(petals)}`);
+  const waspPx = countIn(WASP_CELL.x, WASP_CELL.y, WASP_BODY);
+  check(`wasp body color is in the W tile (${WASP_CELL.x},${WASP_CELL.y}) from LEVEL_1`, waspPx > 0, `${waspPx}px`);
+  // 막대 행(타일 y+25~y+30)만 센다: 꽃 스프라이트의 아래 2행(y+24~y+31)은 비어 있어 팔레트 1(꽃심)이 섞이지 않는다.
+  const countBar = (tx, ty, hex) => {
+    const rgb = hexToRgb(hex);
+    let n = 0;
+    for (let y = minY + ty * TILE + 25; y <= minY + ty * TILE + 30; y++) for (let x = minX + tx * TILE; x < minX + (tx + 1) * TILE; x++) if (near(px, (y * w + x) * bpp, rgb)) n++;
+    return n;
+  };
+  const yellow = FLOWER_CELLS.map((f) => countBar(f.x, f.y, BEE_BODY));
+  const dark = FLOWER_CELLS.map((f) => countBar(f.x, f.y, BAR_BASE));
+  check("honey bar rows hold exactly 8*amount yellow px per flower (40,48,56,64,72)", JSON.stringify(yellow) === JSON.stringify(FLOWER_CELLS.map((f) => 8 * f.amount)), `yellow px ${JSON.stringify(yellow)}`);
+  check("honey bar base color #1A1A1A is present in each flower's bar rows", dark.every((n) => n > 0), `dark px ${JSON.stringify(dark)}`);
+  check("tile (0,0) has no flower, wasp or honey bar pixels", countIn(0, 0, FLOWER_PETAL) === 0 && countIn(0, 0, WASP_BODY) === 0 && countBar(0, 0, BEE_BODY) === 0 && countBar(0, 0, BAR_BASE) === 0, `petal ${countIn(0, 0, FLOWER_PETAL)}, wasp ${countIn(0, 0, WASP_BODY)}, bar yellow ${countBar(0, 0, BEE_BODY)}, bar dark ${countBar(0, 0, BAR_BASE)}`);
 
   const failed = checks.filter((c) => c.result !== "PASS");
   for (const c of checks) console.log(`${c.result}  ${c.name}\n      ${c.observed}`);

@@ -1,6 +1,6 @@
-import { LEVEL_1 } from "./levels.js";
-import { createState, handleKey, MOVE_MS } from "./logic.js";
-import { PALETTE, BEE_SPRITE } from "./sprites.js";
+import { LEVEL_1, LEVEL_1_HONEY } from "./levels.js";
+import { createState, handleKey, tick, remainingHoney, isDone, MOVE_MS } from "./logic.js";
+import { PALETTE, BEE_SPRITE, FLOWER_SPRITE, WASP_SPRITE } from "./sprites.js";
 
 const TILE = 32; // GAME_DESIGN.md 2장 타일 크기
 const SPRITE_PX = 4; // 스프라이트 1픽셀 = 4px (4장)
@@ -15,7 +15,7 @@ const KEY_TO_DIR = {
   ArrowRight: "right",
 };
 
-let state = createState(LEVEL_1);
+let state = createState(LEVEL_1, LEVEL_1_HONEY);
 
 function drawFloor() {
   for (let y = 0; y < state.rows; y++) {
@@ -38,22 +38,57 @@ function beePosition(now) {
   };
 }
 
-function drawBee(now) {
-  const { x, y } = beePosition(now);
-  const left = x * TILE + (TILE - 8 * SPRITE_PX) / 2;
-  const top = y * TILE + (TILE - 8 * SPRITE_PX) / 2;
-  BEE_SPRITE.forEach((row, py) => {
-    row.forEach((idx, px) => {
+function drawSprite(sprite, left, top, px) {
+  sprite.forEach((row, py) => {
+    row.forEach((idx, pxIdx) => {
       if (idx === null) return;
       ctx.fillStyle = PALETTE[idx];
-      ctx.fillRect(left + px * SPRITE_PX, top + py * SPRITE_PX, SPRITE_PX, SPRITE_PX);
+      ctx.fillRect(left + pxIdx * px, top + py * px, px, px);
     });
   });
 }
 
+function drawTileSprite(sprite, x, y) {
+  drawSprite(sprite, x * TILE + (TILE - 8 * SPRITE_PX) / 2, y * TILE + (TILE - 8 * SPRITE_PX) / 2, SPRITE_PX);
+}
+
+function drawBee(now) {
+  const { x, y } = beePosition(now);
+  drawSprite(BEE_SPRITE, x * TILE + (TILE - 8 * SPRITE_PX) / 2, y * TILE + (TILE - 8 * SPRITE_PX) / 2, SPRITE_PX);
+}
+
+// 꿀 칸 막대 (4장): 바탕 (3*양+1)x6px, 남은 꿀 1개당 노란 2x4px 칸 1개, 피치 3px. 4x4 rect를 쓰지 않는다.
+function drawHoneyBar(f) {
+  ctx.fillStyle = PALETTE[0];
+  ctx.fillRect(f.x * TILE + 2, f.y * TILE + 25, 3 * f.amount + 1, 6);
+  ctx.fillStyle = PALETTE[1];
+  for (let i = 0; i < remainingHoney(f); i++) ctx.fillRect(f.x * TILE + 3 + 3 * i, f.y * TILE + 26, 2, 4);
+}
+
+// 결과 화면 (3장): 전체 배경(성공=팔레트 1, 실패=팔레트 7) + 패널 80x80 (200,120) + 큰 스프라이트 64x64 (208,128).
+function drawResult() {
+  const success = state.status === "success";
+  ctx.fillStyle = PALETTE[success ? 1 : 7];
+  ctx.fillRect(0, 0, state.cols * TILE, state.rows * TILE); // 480x320 (2장)
+  ctx.fillStyle = PALETTE[0];
+  ctx.fillRect(200, 120, 80, 80);
+  drawSprite(success ? BEE_SPRITE : WASP_SPRITE, 208, 128, 8);
+}
+
+// 그리기 순서 계약 (4장, e2e/key-sequence.js가 의존): 바닥 -> 꽃 -> 말벌 -> 벌 -> 꿀 막대.
+// 벌 스프라이트의 4x4 rect 50개가 프레임의 마지막 4x4 rect들이어야 한다. 막대는 벌 뒤에 그리되 4x4가 아니다.
 function frame(now) {
-  drawFloor();
-  drawBee(now);
+  state = tick(state, now);
+  if (state.status === "playing") {
+    drawFloor();
+    const open = state.flowers.filter((f) => !isDone(f));
+    for (const f of open) drawTileSprite(FLOWER_SPRITE, f.x, f.y);
+    for (const w of state.wasps) drawTileSprite(WASP_SPRITE, w.x, w.y);
+    drawBee(now);
+    for (const f of open) drawHoneyBar(f);
+  } else {
+    drawResult();
+  }
   requestAnimationFrame(frame);
 }
 
