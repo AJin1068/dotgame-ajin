@@ -69,3 +69,35 @@ test("handleKey does not change the input state object", () => {
   assert.equal(s0.x, 7);
   assert.equal(s1.x, 6);
 });
+
+// 9장 기준 3: 가장자리 바깥 입력은 아무 일도 일어나지 않는다 (이동 잠금도 걸리지 않는다).
+test("an outward press at the edge changes nothing and starts no lock", () => {
+  const edge = { ...createState(LEVEL_1), x: 0, y: 4 };
+  const after = handleKey(edge, "left", 0);
+  assert.equal(after, edge);
+  assert.equal(after.moving, null);
+  const next = handleKey(after, "right", 1);
+  assert.equal(next.x, 1);
+});
+
+// 9장 기준 4: 이동 중 입력은 버리고, 150ms 뒤 다시 누르면 한 칸 이동한다.
+test("a dropped input returns the same state and later presses still work", () => {
+  const s1 = handleKey(createState(LEVEL_1), "up", 0);
+  assert.equal(s1.y, 3);
+  const dropped = handleKey(s1, "left", 100);
+  assert.equal(dropped, s1);
+  const s2 = handleKey(dropped, "left", 300);
+  assert.equal(s2.x, 6);
+  assert.equal(s2.y, 3);
+});
+
+// 방향 문자열이 up/down/left/right가 아니면 무시한다 (Object.prototype 키 포함).
+test("an unknown direction is ignored, including Object.prototype keys", () => {
+  const s0 = createState(LEVEL_1);
+  for (const dir of ["toString", "constructor", "__proto__", "hasOwnProperty", "diagonal"]) {
+    const s = handleKey(s0, dir, 0);
+    assert.equal(s, s0);
+    assert.equal(s.x, 7);
+    assert.equal(s.y, 4);
+  }
+});

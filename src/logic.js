@@ -33,8 +33,8 @@ export function createState(rows) {
 
 // 한 칸 이동. 맵 밖이면 같은 상태를 돌려준다.
 export function moveBee(state, dir) {
+  if (!Object.hasOwn(DELTAS, dir)) return state;
   const delta = DELTAS[dir];
-  if (!delta) return state;
   const nx = state.x + delta.dx;
   const ny = state.y + delta.dy;
   if (nx < 0 || ny < 0 || nx >= state.cols || ny >= state.rows) return state;
