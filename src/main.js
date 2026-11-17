@@ -1,12 +1,21 @@
-import { LEVEL_1, LEVEL_1_HONEY } from "./levels.js";
-import { createState, handleKey, tick, remainingHoney, isDone, MOVE_MS } from "./logic.js";
+import { LEVELS } from "./levels.js";
+import { createState, handleKey, tick, remainingHoney, isDone, stormSecondsLeft, nextLevelDue, soundEvents, MOVE_MS, STORM_MS } from "./logic.js";
+import { createSound } from "./sound.js";
+import { levelLabel, stormLabel, levelClear, allClear, failWasp, failStorm } from "./strings.js";
 import { PALETTE, BEE_SPRITE, FLOWER_SPRITE, WASP_SPRITE } from "./sprites.js";
 
 const TILE = 32; // GAME_DESIGN.md 2장 타일 크기
+const HUD_TOP = 320; // 맵 영역 y 0~319 아래 HUD 띠 y 320~351 (3장)
+const HUD_H = 32;
+const HUD_TEXT_Y = 336;
 const SPRITE_PX = 4; // 스프라이트 1픽셀 = 4px (4장)
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+ctx.font = "16px monospace"; // 7장 UI 문구 글꼴 (웹폰트 없음)
+ctx.textBaseline = "middle";
+
+const sound = createSound();
 
 const KEY_TO_DIR = {
   ArrowUp: "up",
@@ -15,7 +24,14 @@ const KEY_TO_DIR = {
   ArrowRight: "right",
 };
 
-let state = createState(LEVEL_1, LEVEL_1_HONEY);
+let levelIndex = 0;
+let state = createState(LEVELS[0].rows, LEVELS[0].honey, STORM_MS);
+
+// 모든 상태 갱신은 여기로: 효과음 판정 후 상태 교체.
+function update(next) {
+  for (const name of soundEvents(state, next)) sound.play(name);
+  state = next;
+}
 
 function drawFloor() {
   for (let y = 0; y < state.rows; y++) {
@@ -65,29 +81,52 @@ function drawHoneyBar(f) {
   for (let i = 0; i < remainingHoney(f); i++) ctx.fillRect(f.x * TILE + 3 + 3 * i, f.y * TILE + 26, 2, 4);
 }
 
-// 결과 화면 (3장): 전체 배경(성공=팔레트 1, 실패=팔레트 7) + 패널 80x80 (200,120) + 큰 스프라이트 64x64 (208,128).
+// HUD (3장): 맵 아래 전용 띠 y 320~351, 480x32 팔레트 0 바탕, 글자 세로 가운데 y=336. 왼쪽 레벨, 오른쪽 남은 소나기 초(팔레트 1 글자). 4x4 rect 없음.
+function drawHud(now) {
+  ctx.fillStyle = PALETTE[0];
+  ctx.fillRect(0, HUD_TOP, 480, HUD_H);
+  ctx.fillStyle = PALETTE[1];
+  ctx.textAlign = "left";
+  ctx.fillText(levelLabel(levelIndex + 1, LEVELS.length), 8, HUD_TEXT_Y);
+  ctx.textAlign = "right";
+  ctx.fillText(stormLabel(stormSecondsLeft(state, now)), 472, HUD_TEXT_Y);
+}
+
+// 결과 화면 (3장): 전체 배경(성공=팔레트 1, 말벌 실패=팔레트 7, 소나기 실패=팔레트 3) + 패널 80x80 (200,120)
+// + 큰 스프라이트 64x64 (208,128) + 패널 아래 문구 1줄 (240,232).
 function drawResult() {
   const success = state.status === "success";
-  ctx.fillStyle = PALETTE[success ? 1 : 7];
+  const wasp = state.failReason === "wasp";
+  ctx.fillStyle = PALETTE[success ? 1 : wasp ? 7 : 3];
   ctx.fillRect(0, 0, state.cols * TILE, state.rows * TILE); // 480x320 (2장)
   ctx.fillStyle = PALETTE[0];
   ctx.fillRect(200, 120, 80, 80);
-  drawSprite(success ? BEE_SPRITE : WASP_SPRITE, 208, 128, 8);
+  drawSprite(wasp ? WASP_SPRITE : BEE_SPRITE, 208, 128, 8);
+  const text = success ? (levelIndex === LEVELS.length - 1 ? allClear : levelClear(levelIndex + 1)) : wasp ? failWasp : failStorm;
+  ctx.fillStyle = PALETTE[wasp ? 3 : 0];
+  ctx.textAlign = "center";
+  ctx.fillText(text, 240, 232);
 }
 
-// 그리기 순서 계약 (4장, e2e/key-sequence.js가 의존): 바닥 -> 꽃 -> 말벌 -> 벌 -> 꿀 막대.
-// 벌 스프라이트의 4x4 rect 50개가 프레임의 마지막 4x4 rect들이어야 한다. 막대는 벌 뒤에 그리되 4x4가 아니다.
+// 그리기 순서 계약 (4장, e2e/key-sequence.js가 의존): 바닥 -> 꽃 -> 말벌 -> HUD -> 벌 -> 꿀 막대.
+// 벌 스프라이트의 4x4 rect 50개가 프레임의 마지막 4x4 rect들이어야 한다. HUD와 막대는 4x4가 아니다.
 function frame(now) {
-  state = tick(state, now);
+  update(tick(state, now));
+  if (nextLevelDue(state, now, levelIndex, LEVELS.length)) {
+    levelIndex++; // 레벨 전환은 소리 없음, 맵이 나타나는 순간 소나기 시작
+    state = tick(createState(LEVELS[levelIndex].rows, LEVELS[levelIndex].honey, STORM_MS), now);
+  }
   if (state.status === "playing") {
     drawFloor();
     const open = state.flowers.filter((f) => !isDone(f));
     for (const f of open) drawTileSprite(FLOWER_SPRITE, f.x, f.y);
     for (const w of state.wasps) drawTileSprite(WASP_SPRITE, w.x, w.y);
+    drawHud(now);
     drawBee(now);
     for (const f of open) drawHoneyBar(f);
   } else {
     drawResult();
+    drawHud(now);
   }
   requestAnimationFrame(frame);
 }
@@ -97,7 +136,8 @@ window.addEventListener("keydown", (e) => {
   if (!Object.hasOwn(KEY_TO_DIR, e.key)) return;
   const dir = KEY_TO_DIR[e.key];
   e.preventDefault();
-  state = handleKey(state, dir, performance.now());
+  sound.resume(); // 첫 방향키에서 AudioContext 생성 (자동재생 정책)
+  update(handleKey(state, dir, performance.now()));
 });
 
 requestAnimationFrame(frame);

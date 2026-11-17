@@ -5,7 +5,7 @@
 // 무엇을 하나
 //   1) 8000 포트가 비어 있으면 python3 -m http.server 8000 을 띄우고(이미 떠 있으면 그대로 쓰고) 끝나면 내린다.
 //   1b) :8000이 서빙하는 index.html과 src/*.js 가 이 저장소의 파일과 글자 그대로 같은지 비교한다 (다른 디렉터리를 서빙하는 서버를 재사용해 통과하는 일을 막는다).
-//   2) Chrome --headless --dump-dom 으로 index.html 이 로드되어 <canvas id="game" width="480" height="320"> 가 DOM 에 있는지 본다.
+//   2) Chrome --headless --dump-dom 으로 index.html 이 로드되어 <canvas id="game" width="480" height="352"> 가 DOM 에 있는지 본다.
 //   3) Chrome --headless --screenshot 으로 PNG 를 찍어 직접 디코드하고(zlib 만 사용), 아래를 픽셀로 확인한다.
 //      - 바닥 색(#9BD17A)과 음영 색(#6DB35C, 타일 아래 2px)이 정확히 480x320 영역을 채운다 (캔버스 1:1 렌더)
 //      - GAME_DESIGN.md 6장 팔레트 색(바닥 음영, 벌 몸통/줄무늬/날개)이 실제로 그려졌다
@@ -13,6 +13,7 @@
 //      - 이미지가 단색이 아니다
 //      - 꽃 색(#FF6B9A)·말벌 색(#D9482B)이 그려졌고, src/levels.js 에서 읽은 F 5곳·W 1곳 타일에 각각 있으며 (0,0) 타일에는 없다
 //      - 꿀 칸 막대: 각 꽃 타일의 막대 행(타일 y+25~y+30)에서 #FFD23F 픽셀이 정확히 8*꿀양개(꽃 스프라이트 아래 2행은 비어 있어 꽃심이 섞이지 않는다)이고 막대 바탕 #1A1A1A 가 있다. (0,0) 타일 막대 행에는 둘 다 없다
+//      - HUD (GAME_DESIGN.md 3장): 맵 아래 전용 띠 y 320~351 전체가 #1A1A1A 바탕(바닥색 없음, 띠 아래에 초록 줄 없음)이고, 맵 영역 맨 아래 타일 줄 y 288~319는 바닥·음영이 온전히 보이며 HUD 바탕 픽셀이 없다
 //   4) --enable-logging=stderr 로 받은 Chrome 로그에서 CONSOLE 줄(console.error 등 콘솔 메시지)이 0개인지 본다.
 //      console.error 한 줄이 CONSOLE 1줄로 잡히는 것은 확인했다. 스크립트 로드 실패(404)가 CONSOLE 줄로 잡히는지는 확인하지 못했다.
 //      대신 모듈이 로드되지 않으면 벌이 안 그려지므로 아래 렌더 확인(3)이 실패한다.
@@ -20,7 +21,7 @@
 // 무엇을 못 하나 (정직하게)
 //   - 키 입력을 보내지 않는다. 이 스크립트는 "처음 화면이 올바르게 그려지고 콘솔 에러가 없다"만 확인한다.
 //     이동 로직은 e2e/key-sequence.js 와 node --test test/ 가, 실제 키보드로 움직이는 느낌은 사람의 브라우저 확인(9장)이 맡는다.
-//   - 결과 화면(성공/실패)은 보지 않는다. 처음 화면 한 장뿐이다.
+//   - 결과 화면(성공/실패)은 보지 않는다. 처음 화면 한 장뿐이다. 소리와 글자 모양(한글 글꼴)도 확인하지 못한다.
 //   - 애니메이션을 보지 않는다. virtual-time 으로 한 번 찍은 정지 화면 한 장이다.
 //   - Chrome 로그가 비어 있으면(로깅이 꺼졌으면) '콘솔 0'을 통과시키지 않고 실패시킨다.
 //   - Chrome 한 종류(macOS)만 본다. Firefox/Safari, 다른 OS, 다른 화면 배율은 확인하지 않는다.
@@ -135,7 +136,7 @@ try {
   if (!(await serverUp())) throw new Error("http server on :8000 did not come up");
 
   // :8000이 다른 디렉터리를 서빙 중일 수 있으므로, 서빙되는 파일이 이 저장소의 것인지 내용으로 확인한다.
-  for (const f of ["index.html", "src/main.js", "src/logic.js", "src/sprites.js", "src/levels.js"]) {
+  for (const f of ["index.html", "src/main.js", "src/logic.js", "src/sprites.js", "src/levels.js", "src/strings.js", "src/sound.js"]) {
     const served = await (await fetch(`http://127.0.0.1:8000/${f}`)).text();
     check(`server on :8000 serves this repo's ${f}`, served === fs.readFileSync(path.join(root, f), "utf8"), `${served.length} bytes served`);
   }
@@ -147,7 +148,7 @@ try {
   const domArgs = [...base, "--dump-dom", URL_];
   transcript.commands.push([CHROME, ...domArgs].join(" "));
   const dom = await execFileP(CHROME, domArgs, { timeout: 60000, maxBuffer: 1 << 24 });
-  check("DOM has <canvas id=\"game\" width=\"480\" height=\"320\">", /<canvas[^>]*id="game"[^>]*width="480"[^>]*height="320"|<canvas[^>]*width="480"[^>]*height="320"[^>]*id="game"/.test(dom.stdout), `dom length ${dom.stdout.length}`);
+  check("DOM has <canvas id=\"game\" width=\"480\" height=\"352\">", /<canvas[^>]*id="game"[^>]*width="480"[^>]*height="352"|<canvas[^>]*width="480"[^>]*height="352"[^>]*id="game"/.test(dom.stdout), `dom length ${dom.stdout.length}`);
 
   const shotArgs = [...base, `--screenshot=${shotPath}`, URL_];
   transcript.commands.push([CHROME, ...shotArgs].join(" "));
@@ -213,6 +214,27 @@ try {
   check("honey bar rows hold exactly 8*amount yellow px per flower (40,48,56,64,72)", JSON.stringify(yellow) === JSON.stringify(FLOWER_CELLS.map((f) => 8 * f.amount)), `yellow px ${JSON.stringify(yellow)}`);
   check("honey bar base color #1A1A1A is present in each flower's bar rows", dark.every((n) => n > 0), `dark px ${JSON.stringify(dark)}`);
   check("tile (0,0) has no flower, wasp or honey bar pixels", countIn(0, 0, FLOWER_PETAL) === 0 && countIn(0, 0, WASP_BODY) === 0 && countBar(0, 0, BEE_BODY) === 0 && countBar(0, 0, BAR_BASE) === 0, `petal ${countIn(0, 0, FLOWER_PETAL)}, wasp ${countIn(0, 0, WASP_BODY)}, bar yellow ${countBar(0, 0, BEE_BODY)}, bar dark ${countBar(0, 0, BAR_BASE)}`);
+
+  // HUD (3장): 맵 아래 띠 y 320~351 전체가 #1A1A1A 바탕, 맵 영역 y 0~319(9행 y 288~319 포함)에는 HUD 픽셀이 없다. 화면 좌상단 minX/minY 기준.
+  const countRows = (y0, y1, hex) => {
+    const rgb = hexToRgb(hex);
+    let n = 0;
+    for (let y = minY + y0; y <= minY + y1; y++) for (let x = minX; x < minX + 480; x++) if (near(px, (y * w + x) * bpp, rgb)) n++;
+    return n;
+  };
+  const stripDark = countRows(320, 351, BAR_BASE);
+  const stripFloor = countRows(320, 351, FLOOR) + countRows(320, 351, SHADE);
+  const stripText = countRows(320, 351, BEE_BODY); // HUD 글자(팔레트 1)
+  check("HUD strip y 320~351 is #1A1A1A with no floor/shade color (no green strip under the HUD), full 480-wide", stripFloor === 0 && stripDark >= 480 * 32 * 0.8 && stripText > 0 && minY + 352 <= h, `dark px ${stripDark} of ${480 * 32}, floor/shade px ${stripFloor}, text px ${stripText}`);
+  const lastRowDark = countRows(288, 319, BAR_BASE);
+  const lastRowFloor = countRows(288, 319, FLOOR);
+  const lastRowShade = countRows(288, 319, SHADE);
+  check("map area rows y 288~319 (row 9) are fully visible floor + shade (480x32 = 15360 px) with no HUD pixels", lastRowDark === 0 && lastRowFloor + lastRowShade === 480 * 32, `dark px ${lastRowDark}, floor ${lastRowFloor}, shade ${lastRowShade}`);
+  const mapDarkFullRow = (() => {
+    for (let y = 0; y < 320; y++) if (countRows(y, y, BAR_BASE) >= 400) return y;
+    return -1;
+  })();
+  check("no HUD-like full-width #1A1A1A row anywhere in the map area y 0~319", mapDarkFullRow === -1, `first such row ${mapDarkFullRow}`);
 
   const failed = checks.filter((c) => c.result !== "PASS");
   for (const c of checks) console.log(`${c.result}  ${c.name}\n      ${c.observed}`);
