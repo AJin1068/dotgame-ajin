@@ -75,6 +75,10 @@ R1: UI 문구 없음. 사운드 없음.
 - `.js`가 ES module이 되는 이유: package.json에 type 필드가 없으므로 Node는 파일의 import/export 문법을 보고 ES module로 판정한다 (문법 자동 감지). `.mjs`는 쓰지 않는다.
 - 실행: `python3 -m http.server 8000` 실행 후 `http://localhost:8000` 을 연다.
 - `file://` 더블클릭으로 열지 않는다. 이유: 브라우저는 `file://` 원점에서 ES module 스크립트(`<script type="module">`, `src/*.js` import)를 CORS 정책으로 차단한다.
+- e2e (외부 패키지 없음, Node 22.12 이상):
+  - `node e2e/key-sequence.js`: `src/main.js`를 가짜 DOM 위에서 실제로 import하고 합성 keydown 객체(`{ key, repeat }`)를 시간 순서대로 재생해 9장 R1 기준 1~4를 확인한다. 벌 위치는 main.js가 그린 `fillRect` 호출에서 읽는다. 못 하는 것: 실제 키보드·OS 이벤트가 아니고(키 반복 간격은 33ms로 흉내 낸 값), 실제 canvas 픽셀을 보지 않고, 실제 rAF 지터를 재현하지 않는다.
+  - `node e2e/chrome-render.js`: macOS Google Chrome `--headless`로 `http://localhost:8000`을 열어 캔버스 DOM, 480×320 렌더, 6장 팔레트 색, 시작 칸의 벌, 콘솔 메시지 0을 확인한다. 못 하는 것: 키 입력을 보내지 않고, 정지 화면 한 장만 보고, Chrome(macOS) 한 종류만 본다. 스크립트 로드 실패(404)가 콘솔 줄로 잡히는지는 확인하지 못했다(대신 벌이 안 그려져 렌더 확인이 실패한다).
+  - 두 스크립트는 사람의 브라우저 확인(9장)을 대체하지 않는다.
 - 그 밖의 기술 스펙: R3에서 채운다.
 
 ## 9. 수용 기준
