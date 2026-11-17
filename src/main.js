@@ -59,8 +59,8 @@ function frame(now) {
 
 window.addEventListener("keydown", (e) => {
   if (e.repeat) return; // 키 반복 입력 무시 (2장)
+  if (!Object.hasOwn(KEY_TO_DIR, e.key)) return;
   const dir = KEY_TO_DIR[e.key];
-  if (!dir) return;
   e.preventDefault();
   state = handleKey(state, dir, performance.now());
 });

@@ -25,6 +25,7 @@ const { PALETTE } = await import(pathToFileURL(path.join(root, "src/sprites.js")
 const { LEVEL_1 } = await import(pathToFileURL(path.join(root, "src/levels.js")).href);
 const { createState, handleKey, MOVE_MS } = await import(pathToFileURL(path.join(root, "src/logic.js")).href);
 
+const realPerformance = globalThis.performance;
 const TILE = 32; // GAME_DESIGN.md 2장
 const BEE_COLORS = new Set(PALETTE.slice(0, 4)); // 벌 스프라이트가 쓰는 팔레트 0~3
 const results = [];
@@ -170,6 +171,8 @@ await edge("bottom edge", "ArrowDown", "ArrowUp", 5, { x: 7, y: 9 }, { x: 7, y: 
   c.frame(0);
   c.press("a", 1000); // 방향키가 아닌 키
   check(4, "a non-arrow key does not move the bee", same(c.frame(1200), START), `end ${fmt(c.frame(1200))}`);
+  for (const k of ["constructor", "toString", "__proto__"]) c.press(k, 1300);
+  check(4, "Object.prototype key names do not move the bee", same(c.frame(1500), START), `end ${fmt(c.frame(1500))}`);
 }
 
 const failed = results.filter((r) => r.result !== "PASS");
@@ -191,4 +194,9 @@ fs.writeFileSync(
     2,
   ),
 );
+// 스크립트가 세운 가짜 전역을 정리한다 (이 파일을 다른 곳에서 import 해도 남지 않도록).
+for (const k of ["document", "window", "requestAnimationFrame", "performance"]) {
+  if (k === "performance") Object.defineProperty(globalThis, k, { value: realPerformance, configurable: true, writable: true });
+  else delete globalThis[k];
+}
 process.exit(failed.length === 0 ? 0 : 1);

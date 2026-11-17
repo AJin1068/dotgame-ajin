@@ -18,7 +18,10 @@ export function createState(rows) {
   let start = null;
   rows.forEach((row, y) => {
     for (let x = 0; x < row.length; x++) {
-      if (row[x] === "B") start = { x, y };
+      if (row[x] === "B") {
+        if (start !== null) throw new Error("level has more than one bee start cell 'B'");
+        start = { x, y };
+      }
     }
   });
   if (start === null) throw new Error("level has no bee start cell 'B'");
@@ -43,6 +46,7 @@ export function moveBee(state, dir) {
 
 // 키 입력 처리. 이동 중(MOVE_MS 안)에 들어온 입력은 버린다.
 export function handleKey(state, dir, nowMs) {
+  if (!Number.isFinite(nowMs)) return state;
   if (state.moving !== null && nowMs < state.moving.until) return state;
   const moved = moveBee(state, dir);
   if (moved === state) return state;

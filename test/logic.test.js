@@ -91,6 +91,30 @@ test("a dropped input returns the same state and later presses still work", () =
   assert.equal(s2.y, 3);
 });
 
+// 이동 잠금이 끝난 뒤 받은 입력은 새 이동의 출발 칸을 이전 칸으로 기록한다 (렌더 보간에 쓰인다).
+test("a move accepted at lock expiry records its own origin tile", () => {
+  const s1 = handleKey(createState(LEVEL_1), "right", 0);
+  const s2 = handleKey(s1, "down", 150);
+  assert.equal(s2.x, 8);
+  assert.equal(s2.y, 5);
+  assert.equal(s2.moving.fromX, 8);
+  assert.equal(s2.moving.fromY, 4);
+  assert.equal(s2.moving.until, 300);
+});
+
+// 시각이 유한한 숫자가 아니면 입력을 버린다 (잠금을 우회할 수 없다).
+test("a non-finite timestamp is dropped and cannot bypass the lock", () => {
+  const s1 = handleKey(createState(LEVEL_1), "right", 0);
+  for (const bad of [NaN, undefined, Infinity]) {
+    assert.equal(handleKey(s1, "down", bad), s1);
+  }
+});
+
+// 5장에는 벌 시작 칸 B가 하나뿐이다.
+test("a level with two bee start cells is rejected", () => {
+  assert.throws(() => createState(["B.", "B."]));
+});
+
 // 방향 문자열이 up/down/left/right가 아니면 무시한다 (Object.prototype 키 포함).
 test("an unknown direction is ignored, including Object.prototype keys", () => {
   const s0 = createState(LEVEL_1);

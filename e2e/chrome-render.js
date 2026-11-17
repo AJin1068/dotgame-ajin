@@ -4,6 +4,7 @@
 //
 // 무엇을 하나
 //   1) 8000 포트가 비어 있으면 python3 -m http.server 8000 을 띄우고(이미 떠 있으면 그대로 쓰고) 끝나면 내린다.
+//   1b) :8000이 서빙하는 index.html과 src/*.js 가 이 저장소의 파일과 글자 그대로 같은지 비교한다 (다른 디렉터리를 서빙하는 서버를 재사용해 통과하는 일을 막는다).
 //   2) Chrome --headless --dump-dom 으로 index.html 이 로드되어 <canvas id="game" width="480" height="320"> 가 DOM 에 있는지 본다.
 //   3) Chrome --headless --screenshot 으로 PNG 를 찍어 직접 디코드하고(zlib 만 사용), 아래를 픽셀로 확인한다.
 //      - 바닥 색(#9BD17A)과 음영 색(#6DB35C, 타일 아래 2px)이 정확히 480x320 영역을 채운다 (캔버스 1:1 렌더)
@@ -18,6 +19,7 @@
 //   - 키 입력을 보내지 않는다. 이 스크립트는 "처음 화면이 올바르게 그려지고 콘솔 에러가 없다"만 확인한다.
 //     이동 로직은 e2e/key-sequence.js 와 node --test test/ 가, 실제 키보드로 움직이는 느낌은 사람의 브라우저 확인(9장)이 맡는다.
 //   - 애니메이션을 보지 않는다. virtual-time 으로 한 번 찍은 정지 화면 한 장이다.
+//   - Chrome 로그가 비어 있으면(로깅이 꺼졌으면) '콘솔 0'을 통과시키지 않고 실패시킨다.
 //   - Chrome 한 종류(macOS)만 본다. Firefox/Safari, 다른 OS, 다른 화면 배율은 확인하지 않는다.
 //   - CONSOLE 줄만 콘솔 에러로 센다. 로드 실패는 위 이유로 렌더 확인이 대신 잡는다. Chrome 이 따로 남기는 다른 ERROR 로그는 전사 JSON 에 기록만 하고 실패로 보지 않는다.
 
@@ -122,6 +124,13 @@ try {
   } else transcript.startedServer = "reused an already running server on :8000";
   if (!(await serverUp())) throw new Error("http server on :8000 did not come up");
 
+  // :8000이 다른 디렉터리를 서빙 중일 수 있으므로, 서빙되는 파일이 이 저장소의 것인지 내용으로 확인한다.
+  for (const f of ["index.html", "src/main.js", "src/logic.js", "src/sprites.js", "src/levels.js"]) {
+    const served = await (await fetch(`http://127.0.0.1:8000/${f}`)).text();
+    check(`server on :8000 serves this repo's ${f}`, served === fs.readFileSync(path.join(root, f), "utf8"), `${served.length} bytes served`);
+  }
+  const t0 = new Date().toISOString();
+
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), "dotgame-chrome-"));
   const base = ["--headless", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1", "--window-size=800,600", "--virtual-time-budget=3000", "--enable-logging=stderr", "--v=0", "--no-first-run", `--user-data-dir=${profile}`];
 
@@ -137,6 +146,7 @@ try {
   const lines = `${dom.stderr}\n${shot.stderr}`.split("\n");
   transcript.consoleLines = lines.filter((l) => /CONSOLE/.test(l));
   transcript.otherChromeLogLines = lines.filter((l) => /ERROR/.test(l) && !/CONSOLE/.test(l)).slice(0, 20);
+  check("Chrome logging is active (stderr log is not empty, so 0 console lines is not vacuous)", lines.some((l) => l.trim().length > 0), `${lines.filter((l) => l.trim().length > 0).length} non-empty log lines`);
   check("console messages / load errors from Chrome == 0", transcript.consoleLines.length === 0, `${transcript.consoleLines.length} CONSOLE lines`);
 
   const png = decodePng(fs.readFileSync(shotPath));
@@ -180,6 +190,28 @@ try {
   for (const c of checks) console.log(`${c.result}  ${c.name}\n      ${c.observed}`);
   console.log(`\nchrome-render: ${checks.length - failed.length}/${checks.length} passed (screenshot: ${shotPath})`);
   exitCode = failed.length === 0 ? 0 : 1;
+
+  // gjc 품질 게이트가 읽는 automation transcript(schemaVersion 1). 위에서 실제로 실행한 동작만 기록하고, 통과한 검사만 assertions에 넣는다.
+  const t1 = new Date().toISOString();
+  fs.writeFileSync(
+    path.join(outDir, "chrome-render-automation.json"),
+    JSON.stringify(
+      {
+        schemaVersion: 1,
+        surface: "gui",
+        tool: "google-chrome --headless (node e2e/chrome-render.js)",
+        actions: [
+          { type: "goto", url: URL_, timestamp: t0 },
+          { type: "observe", selector: "canvas#game", timestamp: t1 },
+          { type: "screenshot", selector: "canvas#game", path: shotPath, timestamp: t1 },
+        ],
+        assertions: checks.filter((c) => c.result === "PASS").map((c) => ({ name: c.name, selector: "canvas#game", status: "passed", timestamp: t1 })),
+        note: "Single still frame; no key events are sent. Failed checks are not listed as assertions; see chrome-render-transcript.json.",
+      },
+      null,
+      2,
+    ),
+  );
 } catch (err) {
   console.error(`chrome-render: error: ${err.message}`);
   transcript.error = err.message;
