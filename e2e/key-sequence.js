@@ -38,6 +38,7 @@ function check(criterion, name, ok, observed) {
 // main.js 를 새 모듈 인스턴스로 띄운다 (시나리오마다 독립된 상태).
 async function boot() {
   const rects = [];
+  const prevented = [];
   const listeners = [];
   let clock = 0;
   let raf = null;
@@ -69,9 +70,10 @@ async function boot() {
     };
   };
   return {
+    prevented,
     press(key, at, repeat = false) {
       clock = at;
-      keydown({ key, repeat, preventDefault() {} });
+      keydown({ key, repeat, preventDefault() { prevented.push(key); } });
     },
     frame(at) {
       clock = at;
@@ -134,9 +136,9 @@ async function edge(name, key, back, steps, want, afterBack) {
   for (let i = 0; i < steps; i++, t += 200) g.press(key, t);
   const atEdge = g.frame(t);
   g.press(key, t + 100); // 가장자리 바깥 입력
-  const stay = g.frame(t + 250);
-  g.press(back, t + 251); // 바로 다음 입력이 잠금 없이 먹어야 한다
-  const moved = g.frame(t + 251 + MOVE_MS);
+  const stay = g.frame(t + 110);
+  g.press(back, t + 120); // 바깥 입력이 150ms 잠금을 걸었다면 t+250까지 막히므로, 20ms 뒤 입력이 먹어야 잠금이 없었다는 증거다
+  const moved = g.frame(t + 120 + MOVE_MS);
   check(3, `${name}: outward press at the edge changes nothing and starts no lock`, same(atEdge, want) && same(stay, want) && same(moved, afterBack), `edge ${fmt(atEdge)}, after outward ${fmt(stay)}, then ${back} -> ${fmt(moved)}`);
 }
 await edge("left edge", "ArrowLeft", "ArrowRight", 7, { x: 0, y: 4 }, { x: 1, y: 4 });
@@ -172,7 +174,10 @@ await edge("bottom edge", "ArrowDown", "ArrowUp", 5, { x: 7, y: 9 }, { x: 7, y: 
   c.press("a", 1000); // 방향키가 아닌 키
   check(4, "a non-arrow key does not move the bee", same(c.frame(1200), START), `end ${fmt(c.frame(1200))}`);
   for (const k of ["constructor", "toString", "__proto__"]) c.press(k, 1300);
+  check(4, "only arrow keys call preventDefault (page keys like 'a' and prototype names are left alone)", c.prevented.length === 0, `preventDefault called for: ${JSON.stringify(c.prevented)}`);
   check(4, "Object.prototype key names do not move the bee", same(c.frame(1500), START), `end ${fmt(c.frame(1500))}`);
+  c.press("ArrowDown", 1600);
+  check(4, "an arrow key does call preventDefault (page does not scroll)", c.prevented.join() === "ArrowDown", `preventDefault called for: ${JSON.stringify(c.prevented)}`);
 }
 
 const failed = results.filter((r) => r.result !== "PASS");
