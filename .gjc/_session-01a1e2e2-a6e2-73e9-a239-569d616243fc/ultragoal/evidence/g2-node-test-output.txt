@@ -1,0 +1,196 @@
+TAP version 13
+# Subtest: level 1 is 15 columns by 10 rows
+ok 1 - level 1 is 15 columns by 10 rows
+  ---
+  duration_ms: 0.820917
+  type: 'test'
+  ...
+# Subtest: bee starts at column 7, row 4 on level 1
+ok 2 - bee starts at column 7, row 4 on level 1
+  ---
+  duration_ms: 0.136292
+  type: 'test'
+  ...
+# Subtest: one key press moves exactly one tile in each direction
+ok 3 - one key press moves exactly one tile in each direction
+  ---
+  duration_ms: 0.82325
+  type: 'test'
+  ...
+# Subtest: a move out of the map is ignored
+ok 4 - a move out of the map is ignored
+  ---
+  duration_ms: 0.070875
+  type: 'test'
+  ...
+# Subtest: an input during the 150ms move is dropped
+ok 5 - an input during the 150ms move is dropped
+  ---
+  duration_ms: 0.0985
+  type: 'test'
+  ...
+# Subtest: after 150ms a new key press moves one more tile
+ok 6 - after 150ms a new key press moves one more tile
+  ---
+  duration_ms: 0.072292
+  type: 'test'
+  ...
+# Subtest: handleKey does not change the input state object
+ok 7 - handleKey does not change the input state object
+  ---
+  duration_ms: 0.045709
+  type: 'test'
+  ...
+# Subtest: an outward press at the edge changes nothing and starts no lock
+ok 8 - an outward press at the edge changes nothing and starts no lock
+  ---
+  duration_ms: 0.046083
+  type: 'test'
+  ...
+# Subtest: a dropped input returns the same state and later presses still work
+ok 9 - a dropped input returns the same state and later presses still work
+  ---
+  duration_ms: 0.286
+  type: 'test'
+  ...
+# Subtest: a move accepted at lock expiry records its own origin tile
+ok 10 - a move accepted at lock expiry records its own origin tile
+  ---
+  duration_ms: 0.30975
+  type: 'test'
+  ...
+# Subtest: a non-finite timestamp is dropped and cannot bypass the lock
+ok 11 - a non-finite timestamp is dropped and cannot bypass the lock
+  ---
+  duration_ms: 0.125583
+  type: 'test'
+  ...
+# Subtest: a level with two bee start cells is rejected
+ok 12 - a level with two bee start cells is rejected
+  ---
+  duration_ms: 0.103583
+  type: 'test'
+  ...
+# Subtest: an unknown direction is ignored, including Object.prototype keys
+ok 13 - an unknown direction is ignored, including Object.prototype keys
+  ---
+  duration_ms: 0.047292
+  type: 'test'
+  ...
+# Subtest: level 1 map: 15x10, 5 flowers in reading order with honey 5..9 (sum 35), 1 wasp, none on the start row/column
+ok 14 - level 1 map: 15x10, 5 flowers in reading order with honey 5..9 (sum 35), 1 wasp, none on the start row/column
+  ---
+  duration_ms: 0.172459
+  type: 'test'
+  ...
+# Subtest: a 5-honey flower shows 1 left at 4999ms and is done at 5000ms after arrival
+ok 15 - a 5-honey flower shows 1 left at 4999ms and is done at 5000ms after arrival
+  ---
+  duration_ms: 0.086333
+  type: 'test'
+  ...
+# Subtest: no honey is collected while moving: 0 at 149ms and 0 at the arrival instant 150ms
+ok 16 - no honey is collected while moving: 0 at 149ms and 0 at the arrival instant 150ms
+  ---
+  duration_ms: 0.04175
+  type: 'test'
+  ...
+# Subtest: move time does not count: pressing at 0 and ticking at 1150ms gives exactly 1000ms
+ok 17 - move time does not count: pressing at 0 and ticking at 1150ms gives exactly 1000ms
+  ---
+  duration_ms: 0.032375
+  type: 'test'
+  ...
+# Subtest: leaving a flower keeps its progress and returning continues it
+ok 18 - leaving a flower keeps its progress and returning continues it
+  ---
+  duration_ms: 0.042875
+  type: 'test'
+  ...
+# Subtest: two flowers keep independent progress
+ok 19 - two flowers keep independent progress
+  ---
+  duration_ms: 0.038916
+  type: 'test'
+  ...
+# Subtest: arriving on the wasp fails exactly at arrival (599ms playing, 600ms fail)
+ok 20 - arriving on the wasp fails exactly at arrival (599ms playing, 600ms fail)
+  ---
+  duration_ms: 0.046542
+  type: 'test'
+  ...
+# Subtest: the tile next to the wasp is safe however long the bee stands there
+ok 21 - the tile next to the wasp is safe however long the bee stands there
+  ---
+  duration_ms: 0.102083
+  type: 'test'
+  ...
+# Subtest: after a fail, handleKey and tick return the same state object
+ok 22 - after a fail, handleKey and tick return the same state object
+  ---
+  duration_ms: 0.041625
+  type: 'test'
+  ...
+# Subtest: success boundary: one flower of 5 is playing at 4999ms and success at 5000ms after arrival
+ok 23 - success boundary: one flower of 5 is playing at 4999ms and success at 5000ms after arrival
+  ---
+  duration_ms: 0.031792
+  type: 'test'
+  ...
+# Subtest: level 1 full route (48 moves, 35s of honey): playing at 42199ms, success at 42200ms
+ok 24 - level 1 full route (48 moves, 35s of honey): playing at 42199ms, success at 42200ms
+  ---
+  duration_ms: 0.104625
+  type: 'test'
+  ...
+# Subtest: tick ignores equal or earlier times and non-finite times, and never mutates its input
+ok 25 - tick ignores equal or earlier times and non-finite times, and never mutates its input
+  ---
+  duration_ms: 0.074208
+  type: 'test'
+  ...
+# Subtest: leaving a flower first credits the time stood there, and the new tile gets none
+ok 26 - leaving a flower first credits the time stood there, and the new tile gets none
+  ---
+  duration_ms: 0.036833
+  type: 'test'
+  ...
+# Subtest: createState rejects an F count that differs from the honey list and bad bee start counts
+ok 27 - createState rejects an F count that differs from the honey list and bad bee start counts
+  ---
+  duration_ms: 0.086709
+  type: 'test'
+  ...
+# Subtest: one huge dt (hidden tab) caps at the amount and succeeds
+ok 28 - one huge dt (hidden tab) caps at the amount and succeeds
+  ---
+  duration_ms: 0.030584
+  type: 'test'
+  ...
+# Subtest: one huge dt on the wasp tile fails
+ok 29 - one huge dt on the wasp tile fails
+  ---
+  duration_ms: 0.027459
+  type: 'test'
+  ...
+# Subtest: a key press after arriving on the wasp settles to fail and does not move
+ok 30 - a key press after arriving on the wasp settles to fail and does not move
+  ---
+  duration_ms: 0.028708
+  type: 'test'
+  ...
+# Subtest: after success handleKey is ignored
+ok 31 - after success handleKey is ignored
+  ---
+  duration_ms: 0.032708
+  type: 'test'
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 31
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 105.6465

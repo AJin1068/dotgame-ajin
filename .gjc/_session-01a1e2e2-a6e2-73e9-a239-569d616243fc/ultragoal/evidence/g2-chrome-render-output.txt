@@ -1,0 +1,46 @@
+PASS  server on :8000 serves this repo's index.html
+      418 bytes served
+PASS  server on :8000 serves this repo's src/main.js
+      3439 bytes served
+PASS  server on :8000 serves this repo's src/logic.js
+      3594 bytes served
+PASS  server on :8000 serves this repo's src/sprites.js
+      1255 bytes served
+PASS  server on :8000 serves this repo's src/levels.js
+      432 bytes served
+PASS  DOM has <canvas id="game" width="480" height="320">
+      dom length 418
+PASS  Chrome logging is active (stderr log is not empty, so 0 console lines is not vacuous)
+      13 non-empty log lines
+PASS  console messages / load errors from Chrome == 0
+      0 CONSOLE lines
+PASS  screenshot is not a single flat color
+      8 distinct colors in 800x600
+PASS  floor + shade colors (each tile has a 2px shade strip) cover a 480x320 canvas rendered 1:1
+      floor bbox 480x320 at (160,140)
+PASS  6장 palette color drawn: floor shade #6DB35C
+      present
+PASS  6장 palette color drawn: bee body #FFD23F
+      present
+PASS  6장 palette color drawn: bee stripe #2B2118
+      present
+PASS  6장 palette color drawn: bee wing #F4F8FF
+      present
+PASS  bee body color is in the start tile (7,4) and not in tile (0,0)
+      start tile 256px, tile (0,0) 0px
+PASS  6장 palette color drawn: flower petal #FF6B9A
+      present
+PASS  6장 palette color drawn: wasp body #D9482B
+      present
+PASS  flower petal color is in each of the 5 F tiles from LEVEL_1
+      petal px per flower tile [384,384,384,384,384]
+PASS  wasp body color is in the W tile (4,3) from LEVEL_1
+      288px
+PASS  honey bar rows hold exactly 8*amount yellow px per flower (40,48,56,64,72)
+      yellow px [40,48,56,64,72]
+PASS  honey bar base color #1A1A1A is present in each flower's bar rows
+      dark px [56,66,76,86,96]
+PASS  tile (0,0) has no flower, wasp or honey bar pixels
+      petal 0, wasp 0, bar yellow 0, bar dark 0
+
+chrome-render: 22/22 passed (screenshot: /var/folders/nb/vk2763xn5fg84sm4wwvmjzm40000gn/T/dotgame-e2e/chrome-render.png)

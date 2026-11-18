@@ -1,0 +1,32 @@
+PASS  server on :8000 serves this repo's index.html
+      418 bytes served
+PASS  server on :8000 serves this repo's src/main.js
+      1921 bytes served
+PASS  server on :8000 serves this repo's src/logic.js
+      1688 bytes served
+PASS  server on :8000 serves this repo's src/sprites.js
+      581 bytes served
+PASS  server on :8000 serves this repo's src/levels.js
+      302 bytes served
+PASS  DOM has <canvas id="game" width="480" height="320">
+      dom length 418
+PASS  Chrome logging is active (stderr log is not empty, so 0 console lines is not vacuous)
+      13 non-empty log lines
+PASS  console messages / load errors from Chrome == 0
+      0 CONSOLE lines
+PASS  screenshot is not a single flat color
+      6 distinct colors in 800x600
+PASS  floor + shade colors (each tile has a 2px shade strip) cover a 480x320 canvas rendered 1:1
+      floor bbox 480x320 at (160,140)
+PASS  6장 palette color drawn: floor shade #6DB35C
+      present
+PASS  6장 palette color drawn: bee body #FFD23F
+      present
+PASS  6장 palette color drawn: bee stripe #2B2118
+      present
+PASS  6장 palette color drawn: bee wing #F4F8FF
+      present
+PASS  bee body color is in the start tile (7,4) and not in tile (0,0)
+      start tile 256px, tile (0,0) 0px
+
+chrome-render: 15/15 passed (screenshot: /Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/ultragoal/evidence/chrome-render.png)

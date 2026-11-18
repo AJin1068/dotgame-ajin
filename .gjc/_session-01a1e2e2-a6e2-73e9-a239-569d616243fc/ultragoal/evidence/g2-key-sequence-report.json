@@ -1,0 +1,211 @@
+{
+  "kind": "key-sequence-replay",
+  "command": "node e2e/key-sequence.js",
+  "note": "Synthetic keydown objects replayed into src/main.js under a stubbed DOM; not real keyboard events, not real canvas pixels.",
+  "results": [
+    {
+      "criterion": 1,
+      "name": "ArrowUp: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (7,3), want (7,3)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowDown: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (7,5), want (7,5)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowLeft: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (6,4), want (6,4)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowRight: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (8,4), want (8,4)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowRight: in motion at 75ms, not yet arrived at 149ms, arrived at 150ms",
+      "result": "PASS",
+      "observed": "75ms x=7.5, 149ms x=7.993333333333333, 150ms x=8"
+    },
+    {
+      "criterion": 1,
+      "name": "handleKey: move expires exactly MOVE_MS (150) after the press",
+      "result": "PASS",
+      "observed": "until-now=150, MOVE_MS=150"
+    },
+    {
+      "criterion": 2,
+      "name": "hold ArrowRight: 1 initial press + 46 repeat events over 2s -> one tile",
+      "result": "PASS",
+      "observed": "end (8,4)"
+    },
+    {
+      "criterion": 3,
+      "name": "left edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (0,4), after outward (0,4), then ArrowRight -> (1,4)"
+    },
+    {
+      "criterion": 3,
+      "name": "top edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (7,0), after outward (7,0), then ArrowDown -> (7,1)"
+    },
+    {
+      "criterion": 3,
+      "name": "right edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (14,4), after outward (14,4), then ArrowLeft -> (13,4)"
+    },
+    {
+      "criterion": 3,
+      "name": "bottom edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (7,9), after outward (7,9), then ArrowUp -> (7,8)"
+    },
+    {
+      "criterion": 4,
+      "name": "press during a move is dropped; a later press moves one tile",
+      "result": "PASS",
+      "observed": "after drop (8,4), after re-press (8,5)"
+    },
+    {
+      "criterion": 4,
+      "name": "press at 149ms after a move is dropped",
+      "result": "PASS",
+      "observed": "end (8,4)"
+    },
+    {
+      "criterion": 4,
+      "name": "press at 150ms after a move is accepted",
+      "result": "PASS",
+      "observed": "end (8,5)"
+    },
+    {
+      "criterion": 4,
+      "name": "a non-arrow key does not move the bee",
+      "result": "PASS",
+      "observed": "end (7,4)"
+    },
+    {
+      "criterion": 4,
+      "name": "only arrow keys call preventDefault (page keys like 'a' and prototype names are left alone)",
+      "result": "PASS",
+      "observed": "preventDefault called for: []"
+    },
+    {
+      "criterion": 4,
+      "name": "Object.prototype key names do not move the bee",
+      "result": "PASS",
+      "observed": "end (7,4)"
+    },
+    {
+      "criterion": 4,
+      "name": "an arrow key does call preventDefault (page does not scroll)",
+      "result": "PASS",
+      "observed": "preventDefault called for: [\"ArrowDown\"]"
+    },
+    {
+      "criterion": 11,
+      "name": "R1 criteria 1-4 ran 18 checks (6+1+4+7) with unchanged expectations on the R2 map",
+      "result": "PASS",
+      "observed": "18 R1 checks, 0 failing"
+    },
+    {
+      "criterion": 5,
+      "name": "t=0: 5 flowers show 5,6,7,8,9 honey cells in reading order",
+      "result": "PASS",
+      "observed": "honey cells [5,6,7,8,9]"
+    },
+    {
+      "criterion": 5,
+      "name": "t=0: bar base widths are 3*amount+1 = 16,19,22,25,28",
+      "result": "PASS",
+      "observed": "bar widths [16,19,22,25,28]"
+    },
+    {
+      "criterion": 5,
+      "name": "t=60000ms: flowers and bars unchanged, wasp tile identical (does not move)",
+      "result": "PASS",
+      "observed": "honey [5,6,7,8,9], wasp tile rects 2015 chars"
+    },
+    {
+      "criterion": 6,
+      "name": "just before arriving at the first flower (2,1): 5 honey cells",
+      "result": "PASS",
+      "observed": "honey 5"
+    },
+    {
+      "criterion": 6,
+      "name": "1000ms after arrival 4 cells (999ms: still 5)",
+      "result": "PASS",
+      "observed": "999ms 5, 1000ms 4"
+    },
+    {
+      "criterion": 6,
+      "name": "5000ms after arrival flower and bar are gone (4999ms: 1 cell left)",
+      "result": "PASS",
+      "observed": "4999ms 1, 5000ms cells 0 bar null"
+    },
+    {
+      "criterion": 6,
+      "name": "other flowers unchanged (6,7,8,9)",
+      "result": "PASS",
+      "observed": "honey [0,6,7,8,9]"
+    },
+    {
+      "criterion": 7,
+      "name": "left after 2s: 3 cells stay 3 while away (no decay, no regrow)",
+      "result": "PASS",
+      "observed": "while away [3,3,3]"
+    },
+    {
+      "criterion": 7,
+      "name": "after returning, the flower is gone 3000ms later (2999ms: 1 cell left)",
+      "result": "PASS",
+      "observed": "2999ms 1, 3000ms 0"
+    },
+    {
+      "criterion": 8,
+      "name": "standing next to the wasp (5,3) for 3s: nothing happens",
+      "result": "PASS",
+      "observed": "tile (5,3), result null"
+    },
+    {
+      "criterion": 8,
+      "name": "arriving on the wasp tile: 149ms no result, 150ms screen is #D9482B and no 4x4 sprite rects",
+      "result": "PASS",
+      "observed": "before null, after #D9482B, tile null"
+    },
+    {
+      "criterion": 8,
+      "name": "after failing, arrow keys change nothing",
+      "result": "PASS",
+      "observed": "result #D9482B"
+    },
+    {
+      "criterion": 9,
+      "name": "full route (48 moves, 35s of honey): no result at 42199ms, #FFD23F at 42200ms",
+      "result": "PASS",
+      "observed": "moves 48, last 42200, 42199ms result null, 42200ms result #FFD23F"
+    },
+    {
+      "criterion": 9,
+      "name": "after success, arrow keys change nothing",
+      "result": "PASS",
+      "observed": "result #FFD23F"
+    },
+    {
+      "criterion": 10,
+      "name": "a fresh module instance after a fail shows no result, honey 5,6,7,8,9, bee (7,4), and arrow keys move",
+      "result": "PASS",
+      "observed": "previous result #D9482B, fresh result null, honey [5,6,7,8,9], start (7,4), after right (8,4) (module-scope state check; a real F5 is the human check 10)"
+    }
+  ]
+}

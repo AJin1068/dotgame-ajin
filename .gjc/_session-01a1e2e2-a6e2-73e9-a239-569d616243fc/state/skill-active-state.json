@@ -1,49 +1,71 @@
 {
   "version": 1,
   "active": true,
-  "skill": "deep-interview",
-  "phase": "handoff",
-  "updated_at": "2026-11-16T05:56:18.223Z",
+  "skill": "ultragoal",
+  "phase": "blocked",
+  "updated_at": "2026-11-18T01:18:03.225Z",
   "session_id": "01a1e2e2-a6e2-73e9-a239-569d616243fc",
   "active_skills": [
     {
-      "skill": "deep-interview",
-      "phase": "handoff",
+      "skill": "ultragoal",
+      "phase": "blocked",
       "active": true,
-      "activated_at": "2026-11-16T05:56:18.223Z",
-      "updated_at": "2026-11-16T05:56:18.223Z",
+      "activated_at": "2026-11-18T01:18:03.225Z",
+      "updated_at": "2026-11-18T01:18:03.225Z",
       "session_id": "01a1e2e2-a6e2-73e9-a239-569d616243fc",
       "hud": {
         "version": 1,
         "chips": [
           {
-            "label": "phase",
-            "value": "handoff",
+            "label": "blocked",
+            "value": "3",
+            "priority": 5,
+            "severity": "blocked"
+          },
+          {
+            "label": "goals",
+            "value": "0/4",
             "priority": 10
           },
           {
-            "label": "ambiguity",
-            "value": "19%/60%",
+            "label": "current",
+            "value": "blocked",
             "priority": 20
           },
           {
-            "label": "round",
-            "value": "7",
+            "label": "status",
+            "value": "blocked",
             "priority": 30
           },
           {
-            "label": "spec",
-            "value": "persisted",
-            "priority": 60
+            "label": "ledger",
+            "value": "steering_accepted:annotate_ledger",
+            "priority": 35
           }
         ],
-        "updated_at": "2026-11-16T05:56:18.222Z"
+        "updated_at": "2026-11-18T01:18:03.224Z"
       },
-      "source_state_revision": 16,
-      "state_revision": 15
+      "receipt": {
+        "version": 1,
+        "skill": "ultragoal",
+        "owner": "gjc-runtime",
+        "command": "gjc ultragoal (reconcile)",
+        "state_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/skill-active-state.json",
+        "storage_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/ultragoal-state.json",
+        "mutated_at": "2026-11-18T01:18:03.219Z",
+        "fresh_until": "2026-11-18T01:48:03.219Z",
+        "status": "fresh",
+        "mutation_id": "ultragoal:reconcile:2026-11-18T01:18:03.219Z",
+        "verb": "reconcile",
+        "forced": true,
+        "from_phase": "blocked",
+        "to_phase": "blocked"
+      },
+      "source_state_revision": 40,
+      "state_revision": 33
     }
   ],
   "active_subskills": [],
-  "source_state_revision": 24,
-  "state_revision": 24
+  "source_state_revision": 106,
+  "state_revision": 106
 }

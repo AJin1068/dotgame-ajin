@@ -1,0 +1,115 @@
+{
+  "kind": "key-sequence-replay",
+  "command": "node e2e/key-sequence.js",
+  "note": "Synthetic keydown objects replayed into src/main.js under a stubbed DOM; not real keyboard events, not real canvas pixels.",
+  "results": [
+    {
+      "criterion": 1,
+      "name": "ArrowUp: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (7,3), want (7,3)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowDown: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (7,5), want (7,5)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowLeft: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (6,4), want (6,4)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowRight: start (7,4) -> exactly one tile by 150ms",
+      "result": "PASS",
+      "observed": "start (7,4), at 150ms (8,4), want (8,4)"
+    },
+    {
+      "criterion": 1,
+      "name": "ArrowRight: in motion at 75ms, not yet arrived at 149ms, arrived at 150ms",
+      "result": "PASS",
+      "observed": "75ms x=7.5, 149ms x=7.993333333333333, 150ms x=8"
+    },
+    {
+      "criterion": 1,
+      "name": "handleKey: move expires exactly MOVE_MS (150) after the press",
+      "result": "PASS",
+      "observed": "until-now=150, MOVE_MS=150"
+    },
+    {
+      "criterion": 2,
+      "name": "hold ArrowRight: 1 initial press + 46 repeat events over 2s -> one tile",
+      "result": "PASS",
+      "observed": "end (8,4)"
+    },
+    {
+      "criterion": 3,
+      "name": "left edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (0,4), after outward (0,4), then ArrowRight -> (1,4)"
+    },
+    {
+      "criterion": 3,
+      "name": "top edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (7,0), after outward (7,0), then ArrowDown -> (7,1)"
+    },
+    {
+      "criterion": 3,
+      "name": "right edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (14,4), after outward (14,4), then ArrowLeft -> (13,4)"
+    },
+    {
+      "criterion": 3,
+      "name": "bottom edge: outward press at the edge changes nothing and starts no lock",
+      "result": "PASS",
+      "observed": "edge (7,9), after outward (7,9), then ArrowUp -> (7,8)"
+    },
+    {
+      "criterion": 4,
+      "name": "press during a move is dropped; a later press moves one tile",
+      "result": "PASS",
+      "observed": "after drop (8,4), after re-press (8,5)"
+    },
+    {
+      "criterion": 4,
+      "name": "press at 149ms after a move is dropped",
+      "result": "PASS",
+      "observed": "end (8,4)"
+    },
+    {
+      "criterion": 4,
+      "name": "press at 150ms after a move is accepted",
+      "result": "PASS",
+      "observed": "end (8,5)"
+    },
+    {
+      "criterion": 4,
+      "name": "a non-arrow key does not move the bee",
+      "result": "PASS",
+      "observed": "end (7,4)"
+    },
+    {
+      "criterion": 4,
+      "name": "only arrow keys call preventDefault (page keys like 'a' and prototype names are left alone)",
+      "result": "PASS",
+      "observed": "preventDefault called for: []"
+    },
+    {
+      "criterion": 4,
+      "name": "Object.prototype key names do not move the bee",
+      "result": "PASS",
+      "observed": "end (7,4)"
+    },
+    {
+      "criterion": 4,
+      "name": "an arrow key does call preventDefault (page does not scroll)",
+      "result": "PASS",
+      "observed": "preventDefault called for: [\"ArrowDown\"]"
+    }
+  ]
+}

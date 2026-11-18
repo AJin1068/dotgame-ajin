@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "brief": "R1: GAME_DESIGN.md v1 (stage-03-revision.md) 반영 후, 맵 위에서 벌이 방향키 1회에 정확히 1칸 이동하는 화면 하나짜리 게임을 만든다. 순서: (1) GAME_DESIGN.md를 v1 내용으로 교체 (2) src/levels.js에 5장 격자 복사 (3) src/logic.js 순수 함수 moveBee/handleKey (4) src/sprites.js 6장 팔레트 인덱스 8x8 배열 (5) test/logic.test.js 2장 값 기대값 (6) index.html + src/main.js canvas 480x320, 32px 타일, e.repeat 무시, 150ms 이동 중 입력 버림. 검증: node --test test/ 가 0개가 아닌 테스트를 실행해야 함(N3-1). 브라우저 확인은 9장 1~4번이며 사람이 한다. 금지: package.json, 외부 라이브러리, 서버 없는 file:// 실행, AGENTS.md 수정, 꽃/말벌/소나기/채집 구현. 색은 6장 8색만, UI 문구 없음.",
+  "gjcGoalMode": "aggregate",
+  "gjcObjective": "Complete the durable ultragoal plan in .gjc/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .gjc/ultragoal/ledger.jsonl as the audit trail.",
+  "goals": [
+    {
+      "id": "G001",
+      "title": "R1: GAME_DESIGN.md v1 (stage-03-revision.md) 반영 후, 맵 위에서 벌이 방향키 1회에 정확히 1칸 이동...",
+      "objective": "R1: GAME_DESIGN.md v1 (stage-03-revision.md) 반영 후, 맵 위에서 벌이 방향키 1회에 정확히 1칸 이동하는 화면 하나짜리 게임을 만든다. 순서: (1) GAME_DESIGN.md를 v1 내용으로 교체 (2) src/levels.js에 5장 격자 복사 (3) src/logic.js 순수 함수 moveBee/handleKey (4) src/sprites.js 6장 팔레트 인덱스 8x8 배열 (5) test/logic.test.js 2장 값 기대값 (6) index.html + src/main.js canvas 480x320, 32px 타일, e.repeat 무시, 150ms 이동 중 입력 버림. 검증: node --test test/ 가 0개가 아닌 테스트를 실행해야 함(N3-1). 브라우저 확인은 9장 1~4번이며 사람이 한다. 금지: package.json, 외부 라이브러리, 서버 없는 file:// 실행, AGENTS.md 수정, 꽃/말벌/소나기/채집 구현. 색은 6장 8색만, UI 문구 없음.",
+      "status": "blocked",
+      "createdAt": "2026-11-16T09:24:58.484Z",
+      "updatedAt": "2026-11-16T09:28:50.591Z",
+      "startedAt": "2026-11-16T09:25:00.988Z",
+      "evidence": "R1 implementation done: src/logic.js, levels.js, sprites.js, main.js, index.html, test/logic.test.js. node --test test/logic.test.js: 7 pass. Architect CLEAR/APPROVE (6-ArchitectG001Review). Logic QA criteria 1-4 PASS (7-ExecutorG001Qa). Only outstanding: human browser check of GAME_DESIGN.md 9장 criteria 1-4 at http://localhost:8000 after python3 -m http.server 8000. Known: AGENTS.md command node --test test/ fails on Node 22.23 (human-owned AGENTS.md)."
+    },
+    {
+      "id": "G002",
+      "title": "goal-2: R2 flowers, honey gathering, wasp, success/fail",
+      "objective": "Implement R2 per .gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/plans/ralplan/r2-plan-01/stage-02-revision.md: GAME_DESIGN.md design-v2 content first, then levels/sprites/logic(tick)/main, tests (31), e2e extensions; human browser check of 9장 criteria 5-11. No storm timer, levels 2-3, sound, UI text.",
+      "status": "superseded",
+      "createdAt": "2026-11-17T06:37:15.543Z",
+      "updatedAt": "2026-11-17T08:29:29.989Z",
+      "steering": {
+        "kind": "mark_blocked_superseded",
+        "evidence": "G002's only blocker (human browser check 5-11) was resolved OK; completion is recorded on replacement goal G003 with the full gate",
+        "rationale": "Blocked state was a pause artifact, not a dropped requirement",
+        "noReplacementRequired": true
+      },
+      "startedAt": "2026-11-17T06:37:15.780Z",
+      "evidence": "G002's only blocker (human browser check 5-11) was resolved OK; completion is recorded on replacement goal G003 with the full gate"
+    },
+    {
+      "id": "G003",
+      "title": "R2 gate closure (G002 code already committed)",
+      "objective": "Close R2: code committed as 42f3b4e/3934cd7, human OK on 9장 5-11, boundary lanes done; record the quality-gate checkpoint.",
+      "status": "blocked",
+      "createdAt": "2026-11-17T08:29:29.758Z",
+      "updatedAt": "2026-11-17T09:09:10.248Z",
+      "steering": {
+        "kind": "add_subgoal",
+        "evidence": "G002 was checkpointed blocked only to pause for the human check; human has now confirmed 9장 5-11 OK. blocked goals cannot be completed.",
+        "rationale": "Replacement subgoal carries the completion checkpoint"
+      },
+      "startedAt": "2026-11-17T08:29:30.224Z",
+      "evidence": "R2 closed on human confirmation; only the screenshot size gate (4096 B) rejects, no waiver exists; ledger annotated"
+    },
+    {
+      "id": "G004",
+      "title": "goal-3: R3 storm timer, levels 2-3, sound, UI text",
+      "objective": "Implement R3 per .gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/plans/ralplan/r3-plan-01/stage-02-revision.md: GAME_DESIGN.md design-v3 first, then levels/strings/sound/logic/main, tests (57), e2e; human check of 9장 criteria 12-19.",
+      "status": "blocked",
+      "createdAt": "2026-11-17T09:00:58.262Z",
+      "updatedAt": "2026-11-17T09:09:10.682Z",
+      "steering": {
+        "kind": "add_subgoal",
+        "evidence": "ralplan r3-plan-01 approved (final sha 3c4e5c4b)",
+        "rationale": "R3 execution per approved plan"
+      },
+      "startedAt": "2026-11-17T09:09:10.471Z",
+      "evidence": "R3 code complete uncommitted: 57 unit, key-sequence 64/64, chrome 25/25, architect CLEAR, cleaner PASS, QA 8 mutations caught. Awaiting human browser check of 9장 12-19."
+    }
+  ],
+  "createdAt": "2026-11-16T09:24:58.484Z",
+  "updatedAt": "2026-11-17T09:09:10.682Z",
+  "repositoryBinding": {
+    "schema": "gjc.repository_binding.v1",
+    "worktreeRoot": "/Users/fastcampus/dev/Workspace/dotgame-ajin",
+    "commonDir": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.git",
+    "displayPath": "/Users/fastcampus/dev/Workspace/dotgame-ajin",
+    "head": "00b94a0ccf55c3a7d985eba89ee1ab444cf63891",
+    "branch": "main"
+  },
+  "state_revision": 13
+}

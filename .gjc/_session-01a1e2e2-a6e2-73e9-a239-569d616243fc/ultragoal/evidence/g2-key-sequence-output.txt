@@ -1,0 +1,70 @@
+PASS  [criterion 1] ArrowUp: start (7,4) -> exactly one tile by 150ms
+      start (7,4), at 150ms (7,3), want (7,3)
+PASS  [criterion 1] ArrowDown: start (7,4) -> exactly one tile by 150ms
+      start (7,4), at 150ms (7,5), want (7,5)
+PASS  [criterion 1] ArrowLeft: start (7,4) -> exactly one tile by 150ms
+      start (7,4), at 150ms (6,4), want (6,4)
+PASS  [criterion 1] ArrowRight: start (7,4) -> exactly one tile by 150ms
+      start (7,4), at 150ms (8,4), want (8,4)
+PASS  [criterion 1] ArrowRight: in motion at 75ms, not yet arrived at 149ms, arrived at 150ms
+      75ms x=7.5, 149ms x=7.993333333333333, 150ms x=8
+PASS  [criterion 1] handleKey: move expires exactly MOVE_MS (150) after the press
+      until-now=150, MOVE_MS=150
+PASS  [criterion 2] hold ArrowRight: 1 initial press + 46 repeat events over 2s -> one tile
+      end (8,4)
+PASS  [criterion 3] left edge: outward press at the edge changes nothing and starts no lock
+      edge (0,4), after outward (0,4), then ArrowRight -> (1,4)
+PASS  [criterion 3] top edge: outward press at the edge changes nothing and starts no lock
+      edge (7,0), after outward (7,0), then ArrowDown -> (7,1)
+PASS  [criterion 3] right edge: outward press at the edge changes nothing and starts no lock
+      edge (14,4), after outward (14,4), then ArrowLeft -> (13,4)
+PASS  [criterion 3] bottom edge: outward press at the edge changes nothing and starts no lock
+      edge (7,9), after outward (7,9), then ArrowUp -> (7,8)
+PASS  [criterion 4] press during a move is dropped; a later press moves one tile
+      after drop (8,4), after re-press (8,5)
+PASS  [criterion 4] press at 149ms after a move is dropped
+      end (8,4)
+PASS  [criterion 4] press at 150ms after a move is accepted
+      end (8,5)
+PASS  [criterion 4] a non-arrow key does not move the bee
+      end (7,4)
+PASS  [criterion 4] only arrow keys call preventDefault (page keys like 'a' and prototype names are left alone)
+      preventDefault called for: []
+PASS  [criterion 4] Object.prototype key names do not move the bee
+      end (7,4)
+PASS  [criterion 4] an arrow key does call preventDefault (page does not scroll)
+      preventDefault called for: ["ArrowDown"]
+PASS  [criterion 11] R1 criteria 1-4 ran 18 checks (6+1+4+7) with unchanged expectations on the R2 map
+      18 R1 checks, 0 failing
+PASS  [criterion 5] t=0: 5 flowers show 5,6,7,8,9 honey cells in reading order
+      honey cells [5,6,7,8,9]
+PASS  [criterion 5] t=0: bar base widths are 3*amount+1 = 16,19,22,25,28
+      bar widths [16,19,22,25,28]
+PASS  [criterion 5] t=60000ms: flowers and bars unchanged, wasp tile identical (does not move)
+      honey [5,6,7,8,9], wasp tile rects 2015 chars
+PASS  [criterion 6] just before arriving at the first flower (2,1): 5 honey cells
+      honey 5
+PASS  [criterion 6] 1000ms after arrival 4 cells (999ms: still 5)
+      999ms 5, 1000ms 4
+PASS  [criterion 6] 5000ms after arrival flower and bar are gone (4999ms: 1 cell left)
+      4999ms 1, 5000ms cells 0 bar null
+PASS  [criterion 6] other flowers unchanged (6,7,8,9)
+      honey [0,6,7,8,9]
+PASS  [criterion 7] left after 2s: 3 cells stay 3 while away (no decay, no regrow)
+      while away [3,3,3]
+PASS  [criterion 7] after returning, the flower is gone 3000ms later (2999ms: 1 cell left)
+      2999ms 1, 3000ms 0
+PASS  [criterion 8] standing next to the wasp (5,3) for 3s: nothing happens
+      tile (5,3), result null
+PASS  [criterion 8] arriving on the wasp tile: 149ms no result, 150ms screen is #D9482B and no 4x4 sprite rects
+      before null, after #D9482B, tile null
+PASS  [criterion 8] after failing, arrow keys change nothing
+      result #D9482B
+PASS  [criterion 9] full route (48 moves, 35s of honey): no result at 42199ms, #FFD23F at 42200ms
+      moves 48, last 42200, 42199ms result null, 42200ms result #FFD23F
+PASS  [criterion 9] after success, arrow keys change nothing
+      result #FFD23F
+PASS  [criterion 10] a fresh module instance after a fail shows no result, honey 5,6,7,8,9, bee (7,4), and arrow keys move
+      previous result #D9482B, fresh result null, honey [5,6,7,8,9], start (7,4), after right (8,4) (module-scope state check; a real F5 is the human check 10)
+
+key-sequence: 34/34 passed

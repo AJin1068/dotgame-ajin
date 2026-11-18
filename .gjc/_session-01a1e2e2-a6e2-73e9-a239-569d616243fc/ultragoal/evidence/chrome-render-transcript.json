@@ -1,0 +1,99 @@
+{
+  "kind": "chrome-headless-render",
+  "url": "http://localhost:8000",
+  "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "commands": [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=800,600 --virtual-time-budget=3000 --enable-logging=stderr --v=0 --no-first-run --user-data-dir=/var/folders/nb/vk2763xn5fg84sm4wwvmjzm40000gn/T/dotgame-chrome-KPKjSV --dump-dom http://localhost:8000",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=800,600 --virtual-time-budget=3000 --enable-logging=stderr --v=0 --no-first-run --user-data-dir=/var/folders/nb/vk2763xn5fg84sm4wwvmjzm40000gn/T/dotgame-chrome-KPKjSV --screenshot=/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/ultragoal/evidence/chrome-render.png http://localhost:8000"
+  ],
+  "consoleLines": [],
+  "otherChromeLogLines": [
+    "[56835:19659844:1117/101549.881100:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+    "[56835:19659844:1117/101549.881269:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+    "[56835:19659844:1117/101549.881337:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+    "[56835:19659844:1117/101549.881383:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+    "[56850:19660081:1117/101550.314593:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+    "[56850:19660081:1117/101550.314818:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+    "[56850:19660081:1117/101550.314984:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+    "[56850:19660081:1117/101550.315051:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670"
+  ],
+  "checks": [
+    {
+      "name": "server on :8000 serves this repo's index.html",
+      "result": "PASS",
+      "observed": "418 bytes served"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/main.js",
+      "result": "PASS",
+      "observed": "1921 bytes served"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/logic.js",
+      "result": "PASS",
+      "observed": "1688 bytes served"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/sprites.js",
+      "result": "PASS",
+      "observed": "581 bytes served"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/levels.js",
+      "result": "PASS",
+      "observed": "302 bytes served"
+    },
+    {
+      "name": "DOM has <canvas id=\"game\" width=\"480\" height=\"320\">",
+      "result": "PASS",
+      "observed": "dom length 418"
+    },
+    {
+      "name": "Chrome logging is active (stderr log is not empty, so 0 console lines is not vacuous)",
+      "result": "PASS",
+      "observed": "13 non-empty log lines"
+    },
+    {
+      "name": "console messages / load errors from Chrome == 0",
+      "result": "PASS",
+      "observed": "0 CONSOLE lines"
+    },
+    {
+      "name": "screenshot is not a single flat color",
+      "result": "PASS",
+      "observed": "6 distinct colors in 800x600"
+    },
+    {
+      "name": "floor + shade colors (each tile has a 2px shade strip) cover a 480x320 canvas rendered 1:1",
+      "result": "PASS",
+      "observed": "floor bbox 480x320 at (160,140)"
+    },
+    {
+      "name": "6장 palette color drawn: floor shade #6DB35C",
+      "result": "PASS",
+      "observed": "present"
+    },
+    {
+      "name": "6장 palette color drawn: bee body #FFD23F",
+      "result": "PASS",
+      "observed": "present"
+    },
+    {
+      "name": "6장 palette color drawn: bee stripe #2B2118",
+      "result": "PASS",
+      "observed": "present"
+    },
+    {
+      "name": "6장 palette color drawn: bee wing #F4F8FF",
+      "result": "PASS",
+      "observed": "present"
+    },
+    {
+      "name": "bee body color is in the start tile (7,4) and not in tile (0,0)",
+      "result": "PASS",
+      "observed": "start tile 256px, tile (0,0) 0px"
+    }
+  ],
+  "screenshot": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/ultragoal/evidence/chrome-render.png",
+  "startedServer": "reused an already running server on :8000"
+}

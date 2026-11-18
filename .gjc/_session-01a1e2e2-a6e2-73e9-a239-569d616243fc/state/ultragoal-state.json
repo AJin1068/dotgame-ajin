@@ -1,0 +1,79 @@
+{
+  "active": true,
+  "version": 2,
+  "current_phase": "blocked",
+  "skill": "ultragoal",
+  "cwd": "/Users/fastcampus/dev/Workspace/dotgame-ajin",
+  "updated_at": "2026-11-18T01:18:03.219Z",
+  "session_id": "01a1e2e2-a6e2-73e9-a239-569d616243fc",
+  "receipt": {
+    "version": 1,
+    "skill": "ultragoal",
+    "owner": "gjc-runtime",
+    "command": "gjc ultragoal (reconcile)",
+    "state_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/skill-active-state.json",
+    "storage_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/ultragoal-state.json",
+    "mutated_at": "2026-11-18T01:18:03.219Z",
+    "fresh_until": "2026-11-18T01:48:03.219Z",
+    "status": "fresh",
+    "mutation_id": "ultragoal:reconcile:2026-11-18T01:18:03.219Z",
+    "verb": "reconcile",
+    "from_phase": "blocked",
+    "to_phase": "blocked",
+    "forced": true,
+    "content_sha256": {
+      "algorithm": "sha256",
+      "value": "ea8cbcb675599bf5aa0e9605e45030ae51702cd648186cc2b7401b0fc408c297",
+      "covered_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/ultragoal-state.json",
+      "computed_at": "2026-11-18T01:18:03.220Z"
+    }
+  },
+  "status": "blocked",
+  "goals": [
+    {
+      "id": "G001",
+      "title": "R1: GAME_DESIGN.md v1 (stage-03-revision.md) 반영 후, 맵 위에서 벌이 방향키 1회에 정확히 1칸 이동...",
+      "status": "blocked"
+    },
+    {
+      "id": "G002",
+      "title": "goal-2: R2 flowers, honey gathering, wasp, success/fail",
+      "status": "superseded"
+    },
+    {
+      "id": "G003",
+      "title": "R2 gate closure (G002 code already committed)",
+      "status": "blocked"
+    },
+    {
+      "id": "G004",
+      "title": "goal-3: R3 storm timer, levels 2-3, sound, UI text",
+      "status": "blocked"
+    }
+  ],
+  "counts": {
+    "pending": 0,
+    "active": 0,
+    "complete": 0,
+    "failed": 0,
+    "blocked": 3,
+    "review_blocked": 0,
+    "superseded": 1
+  },
+  "ledger_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/ultragoal/ledger.jsonl",
+  "brief_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/ultragoal/brief.md",
+  "goals_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/ultragoal/goals.json",
+  "gjc_objective": "Complete the durable ultragoal plan in .gjc/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .gjc/ultragoal/ledger.jsonl as the audit trail.",
+  "nudge_budget": 6,
+  "nudge_count": 0,
+  "nudge_remaining": 6,
+  "nudge_goal_id": "G004",
+  "nudge_target_kind": "story",
+  "latestLedgerEvent": {
+    "event": "steering_accepted",
+    "timestamp": "2026-11-18T01:18:03.207Z",
+    "kind": "annotate_ledger",
+    "evidence": "Human confirmation reported by user 2026-11-18: 9장 criteria 1-19 OK (pre-title build) and 20 OK (title screen). Marked [사람 확인 OK] in GAME_DESIGN.md 9장. Commits pushed: design-v3, goal-4 (title), goal-5 (README) after 8dc0b4f/9a88379/9e00b84. Verified before commit: 62 unit, key-sequence 75/75, chrome-render 34/34. Screenshot gate (flat-colour imagery) still has no waiver, so G001-G004 stay blocked in goals.json; closed on human confirmation per standing decision. screenshots/ not yet provided."
+  },
+  "state_revision": 45
+}

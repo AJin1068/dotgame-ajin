@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "surface": "gui",
+  "tool": "google-chrome --headless (node e2e/chrome-render.js)",
+  "actions": [
+    {
+      "type": "goto",
+      "url": "http://localhost:8000",
+      "timestamp": "2026-11-17T08:27:44.327Z"
+    },
+    {
+      "type": "observe",
+      "selector": "canvas#game",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "type": "screenshot",
+      "selector": "canvas#game",
+      "path": "/var/folders/nb/vk2763xn5fg84sm4wwvmjzm40000gn/T/dotgame-e2e/chrome-render.png",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    }
+  ],
+  "assertions": [
+    {
+      "name": "server on :8000 serves this repo's index.html",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/main.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/logic.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/sprites.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/levels.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "DOM has <canvas id=\"game\" width=\"480\" height=\"320\">",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "Chrome logging is active (stderr log is not empty, so 0 console lines is not vacuous)",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "console messages / load errors from Chrome == 0",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "screenshot is not a single flat color",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "floor + shade colors (each tile has a 2px shade strip) cover a 480x320 canvas rendered 1:1",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "6장 palette color drawn: floor shade #6DB35C",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "6장 palette color drawn: bee body #FFD23F",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "6장 palette color drawn: bee stripe #2B2118",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "6장 palette color drawn: bee wing #F4F8FF",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "bee body color is in the start tile (7,4) and not in tile (0,0)",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "6장 palette color drawn: flower petal #FF6B9A",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "6장 palette color drawn: wasp body #D9482B",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "flower petal color is in each of the 5 F tiles from LEVEL_1",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "wasp body color is in the W tile (4,3) from LEVEL_1",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "honey bar rows hold exactly 8*amount yellow px per flower (40,48,56,64,72)",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "honey bar base color #1A1A1A is present in each flower's bar rows",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    },
+    {
+      "name": "tile (0,0) has no flower, wasp or honey bar pixels",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T08:27:49.975Z"
+    }
+  ],
+  "note": "Single still frame; no key events are sent. Failed checks are not listed as assertions; see chrome-render-transcript.json."
+}

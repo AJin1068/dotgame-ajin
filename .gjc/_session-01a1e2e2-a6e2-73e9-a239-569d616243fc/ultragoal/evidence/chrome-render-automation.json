@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "surface": "gui",
+  "tool": "google-chrome --headless (node e2e/chrome-render.js)",
+  "actions": [
+    {
+      "type": "goto",
+      "url": "http://localhost:8000",
+      "timestamp": "2026-11-17T01:15:49.550Z"
+    },
+    {
+      "type": "observe",
+      "selector": "canvas#game",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "type": "screenshot",
+      "selector": "canvas#game",
+      "path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/ultragoal/evidence/chrome-render.png",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    }
+  ],
+  "assertions": [
+    {
+      "name": "server on :8000 serves this repo's index.html",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/main.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/logic.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/sprites.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "server on :8000 serves this repo's src/levels.js",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "DOM has <canvas id=\"game\" width=\"480\" height=\"320\">",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "Chrome logging is active (stderr log is not empty, so 0 console lines is not vacuous)",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "console messages / load errors from Chrome == 0",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "screenshot is not a single flat color",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "floor + shade colors (each tile has a 2px shade strip) cover a 480x320 canvas rendered 1:1",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "6장 palette color drawn: floor shade #6DB35C",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "6장 palette color drawn: bee body #FFD23F",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "6장 palette color drawn: bee stripe #2B2118",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "6장 palette color drawn: bee wing #F4F8FF",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    },
+    {
+      "name": "bee body color is in the start tile (7,4) and not in tile (0,0)",
+      "selector": "canvas#game",
+      "status": "passed",
+      "timestamp": "2026-11-17T01:15:50.512Z"
+    }
+  ],
+  "note": "Single still frame; no key events are sent. Failed checks are not listed as assertions; see chrome-render-transcript.json."
+}

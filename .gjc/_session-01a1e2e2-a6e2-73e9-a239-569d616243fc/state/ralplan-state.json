@@ -1,0 +1,60 @@
+{
+  "active": true,
+  "current_phase": "handoff",
+  "skill": "ralplan",
+  "version": 2,
+  "mode": "short",
+  "interactive": false,
+  "task": "R3 planning for dotgame: storm timer, levels 2-3, sound, UI text, criteria 12+",
+  "run_id": "r3-plan-01",
+  "updated_at": "2026-11-17T09:00:50.311Z",
+  "repository_binding": {
+    "schema": "gjc.repository_binding.v1",
+    "worktreeRoot": "/Users/fastcampus/dev/Workspace/dotgame-ajin",
+    "commonDir": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.git",
+    "displayPath": "/Users/fastcampus/dev/Workspace/dotgame-ajin",
+    "head": "00b94a0ccf55c3a7d985eba89ee1ab444cf63891",
+    "branch": "main"
+  },
+  "session_id": "01a1e2e2-a6e2-73e9-a239-569d616243fc",
+  "receipt": {
+    "version": 1,
+    "skill": "ralplan",
+    "owner": "gjc-state-cli",
+    "command": "gjc state ralplan write",
+    "state_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/skill-active-state.json",
+    "storage_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/ralplan-state.json",
+    "mutated_at": "2026-11-17T09:00:50.311Z",
+    "fresh_until": "2026-11-17T09:30:50.311Z",
+    "status": "fresh",
+    "mutation_id": "ralplan:2026-11-17T09:00:50.311Z",
+    "content_sha256": {
+      "algorithm": "sha256",
+      "value": "ad37a93dfbe1d8fc667a7ce629b5b12e1973e703bc71b708016b9b8138eec8ab",
+      "covered_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/state/ralplan-state.json",
+      "computed_at": "2026-11-17T09:00:50.314Z"
+    }
+  },
+  "planner_subagent_id": "PlannerR3",
+  "planner_resumable": true,
+  "critic_id": "CriticR3P1",
+  "critic_resumable": true,
+  "last_review_verdict": "OKAY",
+  "last_review_verdict_lane": "critic",
+  "last_review_verdict_stage_n": 2,
+  "architect_id": "ArchitectR3P1",
+  "architect_resumable": true,
+  "auto_handoff": {
+    "configuredTarget": "off",
+    "effectiveTarget": "off",
+    "degradationReason": null,
+    "source": "default"
+  },
+  "final_admission_phase_transition": {
+    "run_id": "r3-plan-01",
+    "final_path": "/Users/fastcampus/dev/Workspace/dotgame-ajin/.gjc/_session-01a1e2e2-a6e2-73e9-a239-569d616243fc/plans/ralplan/r3-plan-01/stage-02-final.md",
+    "final_sha256": "3c4e5c4bb33b8257cf43d536ad5b786bc4cfa7dafd3ce0f94b976263872ccd47",
+    "auto_handoff_sha256": "baf1bde06b9be0458d9d81bf55e067158d2cf07d30b198d609a3dec519b416b1"
+  },
+  "state_revision": 1
+}
