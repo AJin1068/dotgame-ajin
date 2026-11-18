@@ -57,6 +57,7 @@ async function boot(opts = {}) {
   const texts = [];
   const notes = [];
   const gains = [];
+  let audioContexts = 0;
   const ctx = {
     fillStyle: "",
     font: "",
@@ -66,13 +67,14 @@ async function boot(opts = {}) {
       rects.push({ x, y, w, h, style: this.fillStyle });
     },
     fillText(text, x, y) {
-      texts.push({ text, x, y, style: this.fillStyle, align: this.textAlign });
+      texts.push({ text, x, y, style: this.fillStyle, align: this.textAlign, font: this.font });
     },
   };
   // 가짜 AudioContext (opts.audio): 음 하나 = 오실레이터 1개 + 게인 1개, start(when)의 when을 현재 가짜 시각 기준 오프셋으로 기록한다.
   if (opts.audio) {
     globalThis.AudioContext = class {
       constructor() {
+        audioContexts++;
         this.destination = {};
       }
       get currentTime() {
@@ -112,6 +114,11 @@ async function boot(opts = {}) {
   });
   await import(`../src/main.js?scenario=${++boots}`);
   const keydown = listeners.find((l) => l.type === "keydown").fn;
+  // 타이틀 (3장): 기본은 시작 키("Enter", 시각 0)를 눌러 레벨 1을 시작한 상태로 돌려준다. opts.title 이면 타이틀 그대로.
+  if (!opts.title) {
+    clock = 0;
+    keydown({ key: "Enter", repeat: false, preventDefault() { prevented.push("Enter"); } });
+  }
 
   // 벌 식별 계약 (4장 그리기 순서): 4x4 rect 중 마지막 50개가 벌이다. 4x4가 하나도 없으면 결과 화면이라 null.
   // 마지막 50개가 BEE_SPRITE와 정확히 같지 않으면 그리기 순서가 깨진 것이므로 throw 한다.
@@ -133,6 +140,7 @@ async function boot(opts = {}) {
     texts,
     notes,
     gains,
+    audioContexts: () => audioContexts,
     press(key, at, repeat = false) {
       clock = at;
       keydown({ key, repeat, preventDefault() { prevented.push(key); } });
@@ -591,7 +599,7 @@ let failedL2;
   const s = await boot({ audio: true });
   s.frame(0);
   s.frame(90000);
-  check(18, "no arrow key pressed and the storm arrives: no sound (no oscillator created)", s.result() === RESULT_STORM && s.notes.length === 0, `notes ${s.notes.length}`);
+  check(18, "start key pressed (audio created there) and the storm arrives: exactly one 196Hz triangle fail note, nothing else", s.result() === RESULT_STORM && s.notes.length === 1 && s.notes[0].freq === 196 && s.notes[0].type === "triangle", `notes ${JSON.stringify(s.notes)}`);
 
   const g = await boot({ audio: true });
   g.frame(0);
@@ -650,6 +658,52 @@ let failedL2;
 {
   const early = results.slice(0, r12Count);
   check(19, "R1 (18) + criterion 11 + R2 criteria 5-10 (15) = 34 checks all PASS with unchanged expectations", early.length === 34 && early.every((r) => r.criterion <= 11 && r.result === "PASS"), `${early.length} checks, ${early.filter((r) => r.result !== "PASS").length} failing`);
+}
+
+// 기준 20: 타이틀 화면 (3장).
+{
+  const T = { name: "꿀벌 꿀 모으기", prompt: "아무 키나 눌러 시작" };
+  const t = await boot({ title: true, audio: true });
+  t.frame(0);
+  const small = t.rects.filter((r) => r.w === 4 && r.h === 4).length;
+  const honey = t.rects.filter((r) => r.w === 2 && r.h === 4).length;
+  const name = t.texts.find((x) => x.text === T.name);
+  const prompt = t.texts.find((x) => x.text === T.prompt);
+  const panel = t.rects.find((r) => r.w === 320 && r.h === 240 && r.style === PALETTE[0]);
+  const bee8 = t.rects.filter((r) => r.w === 8 && r.h === 8).length;
+  check(20, "boot shows the title: name text (32px, centered), prompt text below it, palette-0 panel, 8px-per-pixel bee (50 rects), nothing of the map", name?.x === 240 && parseInt(name.font) >= 16 && prompt?.x === 240 && prompt.y > name.y && !!panel && bee8 === 50 && small === 0 && honey === 0, `name ${JSON.stringify(name)}, prompt ${JSON.stringify(prompt)}, panel ${!!panel}, 8x8 rects ${bee8}, 4x4 ${small}, 2x4 ${honey}`);
+  check(20, "title HUD strip (y 320~351) is palette 0 with no text; the title uses only the 8 colours of 6장", t.texts.every((x) => x.y < 320) && t.rects.some((r) => r.y === 320 && r.w === 480 && r.h === 32 && r.style === PALETTE[0]) && t.rects.every((r) => PALETTE.includes(r.style)), `texts ${JSON.stringify(t.texts.map((x) => x.text))}`);
+  t.press("Shift", 500);
+  t.press("Control", 600);
+  t.press("Alt", 700);
+  t.press("Meta", 800);
+  t.press("a", 900, true);
+  t.frame(1000);
+  check(20, "modifier keys (Shift/Control/Alt/Meta) and a repeated key do nothing: still the title, no AudioContext", t.texts.some((x) => x.text === T.name) && t.audioContexts() === 0 && t.tile() === null, `title ${t.texts.some((x) => x.text === T.name)}, contexts ${t.audioContexts()}`);
+  t.frame(100000);
+  check(20, "waiting 100 s on the title makes no sound and no storm: still the title", t.texts.some((x) => x.text === T.prompt) && t.result() === PALETTE[4] && t.notes.length === 0 && t.audioContexts() === 0, `notes ${t.notes.length}, contexts ${t.audioContexts()}`);
+  t.press("ArrowRight", 100000);
+  const atStart = t.frame(100000);
+  const hud0 = hudText(t);
+  const t150 = t.frame(100000 + MOVE_MS + 1);
+  check(20, "start key ArrowRight at t=100000 is consumed: bee stays on the start tile (7,4) even after 150ms, map shown, HUD 레벨 1/3 · 소나기 90초", eq(atStart, START) && eq(t150, START) && hud0.includes("레벨 1/3") && hud0.includes("소나기 90초") && !t.texts.some((x) => x.text === T.name), `bee ${fmt(atStart)} / ${fmt(t150)}, hud "${hud0}"`);
+  check(20, "the start key created the AudioContext (once) and made no sound", t.audioContexts() === 1 && t.notes.length === 0, `contexts ${t.audioContexts()}, notes ${t.notes.length}`);
+  t.frame(189999);
+  const hud1 = hudText(t);
+  const playing = t.result() === null;
+  t.frame(190000);
+  check(20, "the storm counts from the start key: 89999ms after it still playing (HUD 1), 90000ms after it the storm result", playing && hud1.includes("소나기 1초") && t.result() === RESULT_STORM, `hud at 189999 "${hud1}", result at 190000 ${t.result()}`);
+  t.press("a", 190001);
+  const after = t.frame(190002);
+  check(20, "after the title is gone, keys never bring it back (result screen stays)", after === null && t.result() === RESULT_STORM && !t.texts.some((x) => x.text === T.name), `result ${t.result()}`);
+
+  const other = await boot({ title: true });
+  other.frame(0);
+  other.press("a", 50000);
+  const first = other.frame(50000);
+  other.press("ArrowRight", 50300);
+  const moved = other.frame(50300 + MOVE_MS);
+  check(20, "any letter key also starts level 1 without moving the bee; the next arrow key then moves exactly one tile", eq(first, START) && eq(moved, { x: 8, y: 4 }), `after start key ${fmt(first)}, after arrow ${fmt(moved)}`);
 }
 
 const failed = results.filter((r) => r.result !== "PASS");

@@ -6,7 +6,10 @@
 //   1) 8000 포트가 비어 있으면 python3 -m http.server 8000 을 띄우고(이미 떠 있으면 그대로 쓰고) 끝나면 내린다.
 //   1b) :8000이 서빙하는 index.html과 src/*.js 가 이 저장소의 파일과 글자 그대로 같은지 비교한다 (다른 디렉터리를 서빙하는 서버를 재사용해 통과하는 일을 막는다).
 //   2) Chrome --headless --dump-dom 으로 index.html 이 로드되어 <canvas id="game" width="480" height="352"> 가 DOM 에 있는지 본다.
-//   3) Chrome --headless --screenshot 으로 PNG 를 찍어 직접 디코드하고(zlib 만 사용), 아래를 픽셀로 확인한다.
+//   3a) Chrome --headless --screenshot 으로 처음 화면(타이틀)의 PNG 를 찍어 디코드하고(zlib 만 사용), 타이틀을 픽셀로 확인한다 (GAME_DESIGN.md 3장):
+//      팔레트 4 배경 480x320, 팔레트 0 패널, 게임 이름 글자(#FFD23F)·안내 문구(#F4F8FF) 픽셀, 큰 벌, 꽃·말벌 없음, HUD 띠는 글자 없는 #1A1A1A.
+//   3b) Chrome 을 --remote-debugging-port 로 띄우고 CDP(Node 내장 WebSocket)로 페이지를 열어 Input.dispatchKeyEvent 로 ArrowRight keydown 한 번(시작 키)을 보낸 뒤
+//      Page.captureScreenshot 으로 레벨 1 맵 PNG 를 받아 디코드하고, 아래를 픽셀로 확인한다.
 //      - 바닥 색(#9BD17A)과 음영 색(#6DB35C, 타일 아래 2px)이 정확히 480x320 영역을 채운다 (캔버스 1:1 렌더)
 //      - GAME_DESIGN.md 6장 팔레트 색(바닥 음영, 벌 몸통/줄무늬/날개)이 실제로 그려졌다
 //      - 벌 몸통 색이 시작 칸(가로 7, 세로 4)에는 있고 (0,0) 칸에는 없다
@@ -19,10 +22,10 @@
 //      대신 모듈이 로드되지 않으면 벌이 안 그려지므로 아래 렌더 확인(3)이 실패한다.
 //
 // 무엇을 못 하나 (정직하게)
-//   - 키 입력을 보내지 않는다. 이 스크립트는 "처음 화면이 올바르게 그려지고 콘솔 에러가 없다"만 확인한다.
+//   - 키는 타이틀의 시작 키 한 번(ArrowRight)만 보낸다. 시작 키로 벌이 움직이지 않음, 소나기 시각, 소리는 보지 않는다(키 입력 뒤 맵 정지 화면 한 장).
 //     이동 로직은 e2e/key-sequence.js 와 node --test test/ 가, 실제 키보드로 움직이는 느낌은 사람의 브라우저 확인(9장)이 맡는다.
-//   - 결과 화면(성공/실패)은 보지 않는다. 처음 화면 한 장뿐이다. 소리와 글자 모양(한글 글꼴)도 확인하지 못한다.
-//   - 애니메이션을 보지 않는다. virtual-time 으로 한 번 찍은 정지 화면 한 장이다.
+//   - 결과 화면(성공/실패)은 보지 않는다. 타이틀 한 장과 시작 키 뒤 맵 한 장뿐이다. 소리와 글자 모양(한글 글꼴)도 확인하지 못한다.
+//   - 애니메이션을 보지 않는다. 정지 화면(타이틀은 virtual-time, 맵은 키 입력 0.5초 뒤 CDP 캡처)만 본다.
 //   - Chrome 로그가 비어 있으면(로깅이 꺼졌으면) '콘솔 0'을 통과시키지 않고 실패시킨다.
 //   - Chrome 한 종류(macOS)만 본다. Firefox/Safari, 다른 OS, 다른 화면 배율은 확인하지 않는다.
 //   - CONSOLE 줄만 콘솔 에러로 센다. 로드 실패는 위 이유로 렌더 확인이 대신 잡는다. Chrome 이 따로 남기는 다른 ERROR 로그는 전사 JSON 에 기록만 하고 실패로 보지 않는다.
@@ -41,7 +44,8 @@ const CHROME = process.env.CHROME_BIN || "/Applications/Google Chrome.app/Conten
 const URL_ = "http://localhost:8000";
 const outDir = process.env.E2E_OUT || path.join(os.tmpdir(), "dotgame-e2e");
 fs.mkdirSync(outDir, { recursive: true });
-const shotPath = path.join(outDir, "chrome-render.png");
+const shotPath = path.join(outDir, "chrome-render-title.png"); // 처음 화면(타이틀) 정지 화면
+const mapShotPath = path.join(outDir, "chrome-render.png"); // 시작 키(CDP)를 보낸 뒤의 레벨 1 맵 화면
 
 // GAME_DESIGN.md 6장 팔레트
 const FLOOR = "#9BD17A";
@@ -58,6 +62,7 @@ const { LEVEL_1, LEVEL_1_HONEY } = await import(pathToFileURL(path.join(root, "s
 const cells = (ch) => LEVEL_1.flatMap((row, y) => [...row].flatMap((c, x) => (c === ch ? [{ x, y }] : [])));
 const FLOWER_CELLS = cells("F").map((c, i) => ({ ...c, amount: LEVEL_1_HONEY[i] }));
 const WASP_CELL = cells("W")[0];
+const TITLE_NAME_PX = "32px monospace";
 
 const checks = [];
 const check = (name, ok, observed) => checks.push({ name, result: ok ? "PASS" : "FAIL", observed });
@@ -124,8 +129,69 @@ function decodePng(buf) {
 
 const near = (px, i, rgb) => Math.abs(px[i] - rgb[0]) <= 2 && Math.abs(px[i + 1] - rgb[1]) <= 2 && Math.abs(px[i + 2] - rgb[2]) <= 2;
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Chrome 을 remote-debugging 으로 띄우고 CDP(WebSocket)로 페이지를 열어 keydown 한 번을 보낸 뒤 PNG 를 저장한다.
+// 반환: Chrome stderr 로그 줄들. 키 이벤트는 Input.dispatchKeyEvent 로 보낸 실제 브라우저 입력이다.
+async function captureAfterKey(args, outFile, key, keyCode) {
+  const profile = fs.mkdtempSync(path.join(os.tmpdir(), "dotgame-chrome-cdp-"));
+  const chromeArgs = [...args, "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"];
+  const proc = spawn(CHROME, chromeArgs, { stdio: ["ignore", "ignore", "pipe"] });
+  let log = "";
+  proc.stderr.on("data", (d) => (log += d));
+  try {
+    const portFile = path.join(profile, "DevToolsActivePort");
+    for (let i = 0; i < 100 && !fs.existsSync(portFile); i++) await sleep(100);
+    if (!fs.existsSync(portFile)) throw new Error("Chrome did not open a DevTools port");
+    const port = fs.readFileSync(portFile, "utf8").split("\n")[0];
+    let target = null;
+    for (let i = 0; i < 50 && !target; i++) {
+      try {
+        target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page");
+      } catch {}
+      if (!target) await sleep(100);
+    }
+    if (!target) throw new Error("no page target from Chrome");
+    const ws = new WebSocket(target.webSocketDebuggerUrl);
+    await new Promise((res, rej) => {
+      ws.onopen = res;
+      ws.onerror = () => rej(new Error("DevTools WebSocket failed"));
+    });
+    let nextId = 0;
+    const pending = new Map();
+    ws.onmessage = (m) => {
+      const msg = JSON.parse(m.data);
+      if (msg.id !== undefined && pending.has(msg.id)) {
+        const { res, rej } = pending.get(msg.id);
+        pending.delete(msg.id);
+        msg.error ? rej(new Error(msg.error.message)) : res(msg.result);
+      }
+    };
+    const send = (method, params = {}) =>
+      new Promise((res, rej) => {
+        const id = ++nextId;
+        pending.set(id, { res, rej });
+        ws.send(JSON.stringify({ id, method, params }));
+      });
+    await send("Page.enable");
+    await send("Emulation.setDeviceMetricsOverride", { width: 800, height: 600, deviceScaleFactor: 1, mobile: false });
+    await send("Page.navigate", { url: URL_ });
+    await sleep(1500); // 모듈 로드·첫 프레임
+    const key_ = { key, code: key, windowsVirtualKeyCode: keyCode };
+    await send("Input.dispatchKeyEvent", { type: "rawKeyDown", ...key_ });
+    await send("Input.dispatchKeyEvent", { type: "keyUp", ...key_ });
+    await sleep(500); // 시작 키 뒤 몇 프레임
+    const { data } = await send("Page.captureScreenshot", { format: "png" });
+    fs.writeFileSync(outFile, Buffer.from(data, "base64"));
+    ws.close();
+  } finally {
+    proc.kill();
+  }
+  return log.split("\n");
+}
+
 let server = null;
-const transcript = { kind: "chrome-headless-render", url: URL_, chrome: CHROME, commands: [], consoleLines: [], otherChromeLogLines: [], checks, screenshot: shotPath };
+const transcript = { kind: "chrome-headless-render", url: URL_, chrome: CHROME, commands: [], consoleLines: [], otherChromeLogLines: [], checks, screenshot: shotPath, mapScreenshot: mapShotPath };
 let exitCode = 1;
 try {
   if (!(await serverUp())) {
@@ -154,13 +220,47 @@ try {
   transcript.commands.push([CHROME, ...shotArgs].join(" "));
   const shot = await execFileP(CHROME, shotArgs, { timeout: 60000, maxBuffer: 1 << 24 });
 
-  const lines = `${dom.stderr}\n${shot.stderr}`.split("\n");
+  const cdpArgs = base.filter((a) => !a.startsWith("--virtual-time-budget") && !a.startsWith("--user-data-dir"));
+  transcript.commands.push(`${[CHROME, ...cdpArgs].join(" ")} --remote-debugging-port=0 about:blank  (CDP: Page.navigate ${URL_}; Input.dispatchKeyEvent rawKeyDown/keyUp ArrowRight; Page.captureScreenshot -> ${mapShotPath})`);
+  const cdpLines = await captureAfterKey(cdpArgs, mapShotPath, "ArrowRight", 39);
+
+  const lines = `${dom.stderr}\n${shot.stderr}\n${cdpLines.join("\n")}`.split("\n");
   transcript.consoleLines = lines.filter((l) => /CONSOLE/.test(l));
   transcript.otherChromeLogLines = lines.filter((l) => /ERROR/.test(l) && !/CONSOLE/.test(l)).slice(0, 20);
   check("Chrome logging is active (stderr log is not empty, so 0 console lines is not vacuous)", lines.some((l) => l.trim().length > 0), `${lines.filter((l) => l.trim().length > 0).length} non-empty log lines`);
   check("console messages / load errors from Chrome == 0", transcript.consoleLines.length === 0, `${transcript.consoleLines.length} CONSOLE lines`);
 
-  const png = decodePng(fs.readFileSync(shotPath));
+  // ---- 타이틀 정지 화면 (3장): 키를 보내기 전 처음 화면 ----
+  {
+    const { w, h, bpp, px } = decodePng(fs.readFileSync(shotPath));
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    const fl = hexToRgb(FLOOR);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (near(px, (y * w + x) * bpp, fl)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    check("title: floor color #9BD17A fills the 480x320 map area box (title background, canvas 1:1)", x1 - x0 + 1 === 480 && y1 - y0 + 1 === 320, `floor bbox ${x1 - x0 + 1}x${y1 - y0 + 1} at (${x0},${y0})`);
+    // 영역(캔버스 좌표) 안의 hex 색 픽셀 수와 영역 넓이.
+    const area = (cx0, cy0, cx1, cy1, hex) => {
+      const rgb = hexToRgb(hex);
+      let n = 0;
+      for (let y = y0 + cy0; y < y0 + cy1; y++) for (let x = x0 + cx0; x < x0 + cx1; x++) if (near(px, (y * w + x) * bpp, rgb)) n++;
+      return n;
+    };
+    const gapDark = area(90, 190, 390, 200, BAR_BASE); // 이름(y~136~184)과 안내 문구(y~212~236) 사이 패널 빈 줄
+    check("title: palette-0 panel (80,40)-(400,280) is #1A1A1A (empty strip between name and prompt fully dark)", gapDark === 300 * 10, `${gapDark} of ${300 * 10} px`);
+    const namePx = area(90, 136, 390, 184, BEE_BODY);
+    check(`title: game-name text pixels (#FFD23F, ${TITLE_NAME_PX}) are in the panel's name band`, namePx > 100, `${namePx}px`);
+    const promptPx = area(90, 212, 390, 236, BEE_WING);
+    check("title: prompt text pixels (#F4F8FF) are in the panel's prompt band", promptPx > 30, `${promptPx}px`);
+    const beePx = area(208, 56, 272, 120, BEE_BODY) + area(208, 56, 272, 120, BEE_STRIPE);
+    check("title: big bee sprite (64x64 at (208,56)) is drawn above the name", beePx > 500, `${beePx}px of bee body+stripe color`);
+    const stray = area(0, 0, 480, 320, FLOWER_PETAL) + area(0, 0, 480, 320, WASP_BODY);
+    check("title: no flowers or wasps are drawn", stray === 0, `${stray}px of petal/wasp color`);
+    const hudDark = area(0, 320, 480, 352, BAR_BASE);
+    const hudText = area(0, 320, 480, 352, BEE_BODY);
+    check("title: HUD strip y 320~351 is entirely #1A1A1A with no text pixels", hudDark === 480 * 32 && hudText === 0, `dark ${hudDark} of ${480 * 32}, yellow text px ${hudText}`);
+  }
+
+  // ---- 시작 키(CDP Input.dispatchKeyEvent ArrowRight)를 보낸 뒤의 레벨 1 맵 화면 ----
+  const png = decodePng(fs.readFileSync(mapShotPath));
   const { w, h, bpp, px } = png;
   const floor = hexToRgb(FLOOR);
   const shade = hexToRgb(SHADE);
@@ -238,7 +338,7 @@ try {
 
   const failed = checks.filter((c) => c.result !== "PASS");
   for (const c of checks) console.log(`${c.result}  ${c.name}\n      ${c.observed}`);
-  console.log(`\nchrome-render: ${checks.length - failed.length}/${checks.length} passed (screenshot: ${shotPath})`);
+  console.log(`\nchrome-render: ${checks.length - failed.length}/${checks.length} passed (screenshots: ${shotPath}, ${mapShotPath})`);
   exitCode = failed.length === 0 ? 0 : 1;
 
   // gjc 품질 게이트가 읽는 automation transcript(schemaVersion 1). 위에서 실제로 실행한 동작만 기록하고, 통과한 검사만 assertions에 넣는다.
@@ -254,9 +354,11 @@ try {
           { type: "goto", url: URL_, timestamp: t0 },
           { type: "observe", selector: "canvas#game", timestamp: t1 },
           { type: "screenshot", selector: "canvas#game", path: shotPath, timestamp: t1 },
+          { type: "key", key: "ArrowRight", timestamp: t1 },
+          { type: "screenshot", selector: "canvas#game", path: mapShotPath, timestamp: t1 },
         ],
         assertions: checks.filter((c) => c.result === "PASS").map((c) => ({ name: c.name, selector: "canvas#game", status: "passed", timestamp: t1 })),
-        note: "Single still frame; no key events are sent. Failed checks are not listed as assertions; see chrome-render-transcript.json.",
+        note: "Title still frame, then one ArrowRight keydown via CDP and a map still frame. Failed checks are not listed as assertions; see chrome-render-transcript.json.",
       },
       null,
       2,

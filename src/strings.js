@@ -5,3 +5,5 @@ export const levelClear = (n) => `레벨 ${n} 클리어! 곧 다음 레벨`;
 export const allClear = "모든 레벨 클리어! 다시 하려면 F5";
 export const failWasp = "말벌에 닿았어요. 다시 하려면 F5";
 export const failStorm = "소나기가 왔어요. 다시 하려면 F5";
+export const titleName = "꿀벌 꿀 모으기";
+export const titlePrompt = "아무 키나 눌러 시작";

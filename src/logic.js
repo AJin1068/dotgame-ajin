@@ -97,6 +97,17 @@ export function stormSecondsLeft(state, nowMs) {
   return Math.max(0, Math.ceil((state.stormAt - nowMs) / 1000));
 }
 
+// 타이틀 시작 키 (GAME_DESIGN.md 3장): 순수 수정 키(Shift·Control·Alt·Meta)를 뺀 모든 키.
+const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
+export function isStartKey(key) {
+  return typeof key === "string" && key !== "" && !MODIFIER_KEYS.includes(key);
+}
+
+// 레벨을 시작한다: 새 상태를 만들고 그 시각(nowMs)을 레벨 시작(소나기 90초의 기준)으로 정한다.
+export function startLevel(rows, honey, nowMs) {
+  return tick(createState(rows, honey, STORM_MS), nowMs);
+}
+
 // 성공 화면을 RESULT_HOLD_MS 보였고 마지막 레벨이 아니면 다음 레벨을 시작할 때다.
 export function nextLevelDue(state, nowMs, levelIndex, levelCount) {
   return state.status === "success" && levelIndex < levelCount - 1 && nowMs - state.lastMs >= RESULT_HOLD_MS;

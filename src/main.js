@@ -1,7 +1,7 @@
 import { LEVELS } from "./levels.js";
-import { createState, handleKey, tick, remainingHoney, isDone, stormSecondsLeft, nextLevelDue, soundEvents, MOVE_MS, STORM_MS } from "./logic.js";
+import { handleKey, tick, remainingHoney, isDone, stormSecondsLeft, nextLevelDue, soundEvents, MOVE_MS, isStartKey, startLevel } from "./logic.js";
 import { createSound } from "./sound.js";
-import { levelLabel, stormLabel, levelClear, allClear, failWasp, failStorm } from "./strings.js";
+import { levelLabel, stormLabel, levelClear, allClear, failWasp, failStorm, titleName, titlePrompt } from "./strings.js";
 import { PALETTE, BEE_SPRITE, FLOWER_SPRITE, WASP_SPRITE } from "./sprites.js";
 
 const TILE = 32; // GAME_DESIGN.md 2장 타일 크기
@@ -25,7 +25,12 @@ const KEY_TO_DIR = {
 };
 
 let levelIndex = 0;
-let state = createState(LEVELS[0].rows, LEVELS[0].honey, STORM_MS);
+let state = null; // 타이틀 화면에서는 null. 시작 키에서 레벨 1 상태가 된다.
+
+function begin(now) {
+  levelIndex = 0;
+  state = startLevel(LEVELS[0].rows, LEVELS[0].honey, now); // 소나기 90초는 시작 키 시각부터
+}
 
 // 모든 상태 갱신은 여기로: 효과음 판정 후 상태 교체.
 function update(next) {
@@ -108,13 +113,37 @@ function drawResult() {
   ctx.fillText(text, 240, 232);
 }
 
+// 타이틀 화면 (3장): 맵 영역 480x320 팔레트 4 + 팔레트 0 패널 320x240 (80,40) + 큰 벌 64x64 (208,56)
+// + 게임 이름 (240,160, 32px) + 안내 문구 (240,224, 16px). HUD 띠는 팔레트 0 바탕만, 글자 없음.
+function drawTitle() {
+  ctx.fillStyle = PALETTE[4];
+  ctx.fillRect(0, 0, 480, 320);
+  ctx.fillStyle = PALETTE[0];
+  ctx.fillRect(80, 40, 320, 240);
+  drawSprite(BEE_SPRITE, 208, 56, 8);
+  ctx.textAlign = "center";
+  ctx.font = "32px monospace";
+  ctx.fillStyle = PALETTE[1];
+  ctx.fillText(titleName, 240, 160);
+  ctx.font = "16px monospace";
+  ctx.fillStyle = PALETTE[3];
+  ctx.fillText(titlePrompt, 240, 224);
+  ctx.fillStyle = PALETTE[0];
+  ctx.fillRect(0, HUD_TOP, 480, HUD_H);
+}
+
 // 그리기 순서 계약 (4장, e2e/key-sequence.js가 의존): 바닥 -> 꽃 -> 말벌 -> HUD -> 벌 -> 꿀 막대.
 // 벌 스프라이트의 4x4 rect 50개가 프레임의 마지막 4x4 rect들이어야 한다. HUD와 막대는 4x4가 아니다.
 function frame(now) {
+  if (state === null) {
+    drawTitle();
+    requestAnimationFrame(frame);
+    return;
+  }
   update(tick(state, now));
   if (nextLevelDue(state, now, levelIndex, LEVELS.length)) {
     levelIndex++; // 레벨 전환은 소리 없음, 맵이 나타나는 순간 소나기 시작
-    state = tick(createState(LEVELS[levelIndex].rows, LEVELS[levelIndex].honey, STORM_MS), now);
+    state = startLevel(LEVELS[levelIndex].rows, LEVELS[levelIndex].honey, now);
   }
   if (state.status === "playing") {
     drawFloor();
@@ -133,10 +162,18 @@ function frame(now) {
 
 window.addEventListener("keydown", (e) => {
   if (e.repeat) return; // 키 반복 입력 무시 (2장)
+  if (state === null) {
+    // 타이틀 (3장): 시작 키는 소비하고(벌은 안 움직임), 같은 keydown에서 소리를 켜고 레벨 1을 시작한다.
+    if (!isStartKey(e.key)) return;
+    if (Object.hasOwn(KEY_TO_DIR, e.key)) e.preventDefault();
+    sound.resume();
+    begin(performance.now());
+    return;
+  }
   if (!Object.hasOwn(KEY_TO_DIR, e.key)) return;
   const dir = KEY_TO_DIR[e.key];
   e.preventDefault();
-  sound.resume(); // 첫 방향키에서 AudioContext 생성 (자동재생 정책)
+  sound.resume(); // 방향키마다 호출하지만 AudioContext는 타이틀의 시작 키에서 이미 만들어졌다 (자동재생 정책)
   update(handleKey(state, dir, performance.now()));
 });
 
